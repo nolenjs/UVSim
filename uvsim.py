@@ -14,3 +14,4 @@ class UVSim:
         print("Save the line's value to the accumulator", self.accumulator)
 
     #Other functions to come, but something to get started
+        #kicks and giggles
