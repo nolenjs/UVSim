@@ -117,3 +117,68 @@ class UVSim:
         print(f"Halt the Program") #Shout for Testing
         #End program Handled By run Method
         pass
+
+
+
+def run(self): #Runs program until Halt
+        self.counter = 0 #Reset Counter
+        self.accumulator = 0 #Reset Accumulator
+        run_program = True
+        while run_program:
+            #Get Next Line
+            current = self.program[self.counter] #Start at current PC position
+
+            #Exract opcode
+            opcode = int(str(current)[:2]) #Get first two digits
+            operand= current % 100 #GeT Last Two Digits
+            print(f"OpCode: {opcode} Operand: {operand}")
+
+            #Run Operation
+
+            if opcode == 10:
+                self._read(operand) #READ
+            elif opcode == 11:
+                self._write(operand) #WRITE
+
+            elif opcode == 20:
+                self._load(operand) #LOAD
+            elif opcode == 21:
+                self._store(operand) #STORE
+
+            elif opcode == 30:
+                self._add(operand) #ADD
+            elif opcode == 31:
+                self._subract(operand) #SUB
+            elif opcode == 32:
+                self._multiply(operand) #MUL
+            elif opcode == 33:
+                self._divide(operand) #DIV
+
+            elif opcode == 40:
+                self._branch(operand) #BRANCH
+            elif opcode == 41:
+                self._branch_neg(operand) #BRANCHNEG
+            elif opcode == 42:
+                self._branch_zero(operand) #BRANCHZERO
+
+            elif opcode == 43:
+                #HALT
+                self._halt()
+                run_program = False
+            
+            elif opcode == 0: #No Op
+                print("NoOp")
+                self.counter +=1
+            else:
+                print("Invalid Operation")
+
+            #run_program = False #Escape for Testing
+        return 0
+
+
+def main(): #The Console interface for the Program
+    sim = UVSim(0,0) #Create a UVSim object for the user to use in the console appliaction
+    sim.run() #Run Sim
+
+if __name__ == "__main__":
+    main()
