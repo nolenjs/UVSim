@@ -82,6 +82,8 @@ class UVSim:
         '''Divide the Accumulator value by a value stored in a specific Memory Location'''
         print(f"Divide from {location} by Accumulator") #Shout for Testing
         operand = self.program[location] #Get Operand from specific Memory Location
+        if operand == 0:
+            raise ValueError("Divide by Zero")
         self.accumulator = self.accumulator / operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
         self.counter += 1 #PC Increments
         pass
