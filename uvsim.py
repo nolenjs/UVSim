@@ -8,13 +8,13 @@ class UVSim:
                 self.program[p] = self.program[p].strip() #Remove any whitespace characters
 
     def write(self, index):
-        print("Save the accumulator's value to the file", self.accumulator)
-
-    def read(self, index):
-        print("Save the line's value to the accumulator", self.accumulator)
-
-    #Other functions to come, but something to get started
-        #kicks and giggles
+        temp = "" #
+        if self.accumulator < 1000:
+            temp += "0"
+            if self.accumulator < 100:
+                temp += "0"
+        self.program[index] = temp + str(self.accumulator)
+        return self.accumulator
 
     def _check_location(self,location): #Checks if the location in memory is valid
         if location >=0 or location < len(self.program):
@@ -32,7 +32,7 @@ class UVSim:
         self._check_location(location)
         word = input("Enter a value: ")
         self.program[location] = int(word) #Store word at location in file
-        self.counter +=1
+        # self.counter +=1
         pass
 
     def _write(self, location): #11
@@ -41,7 +41,7 @@ class UVSim:
         self._check_location(location)
         word = self.program[location] #Get word from location in file
         print(word) 
-        self.counter +=1
+        # self.counter +=1
         pass
 
 
@@ -49,8 +49,15 @@ class UVSim:
     def _load(self, location): #20
         '''Loads a word from a specific Memory Location into the Accumulator'''
         self._check_location(location)
-        self.accumulator = 0 #TODO Get word from Location in file
-        self.counter +=1
+        temp = "" # To fill the 4-digit requirement of a word
+        if self.accumulator < 1000 and self.accumulator > -1000:
+            temp += "0"
+            if self.accumulator < 100 and self.accumulator > -100:
+                temp += "0"
+        if self.accumulator < 0:
+            temp = "-" + temp
+        self.program[location] = temp + str(self.accumulator)
+        # self.counter +=1
         pass
 
     def _store(self, location): #21
@@ -59,7 +66,7 @@ class UVSim:
         self._check_location(location)
         word = self.accumulator
         self.program[location] = word #store word at location in file
-        self.counter +=1
+        # self.counter +=1
         pass
 
 
@@ -70,7 +77,7 @@ class UVSim:
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
         self.accumulator = self.accumulator + operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
-        self.counter += 1 #PC Increments
+        # self.counter += 1 #PC Increments
         pass
 
     def _subract(self, location): #31
@@ -79,7 +86,7 @@ class UVSim:
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
         self.accumulator = self.accumulator - operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
-        self.counter += 1 #PC Increments
+        # self.counter += 1 #PC Increments
         pass
 
     def _multiply(self, location): #32
@@ -88,7 +95,7 @@ class UVSim:
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
         self.accumulator = self.accumulator * operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand)
-        self.counter += 1 #PC Increments
+        # self.counter += 1 #PC Increments
         pass
 
     def _divide(self, location): #33
@@ -98,8 +105,8 @@ class UVSim:
         operand = self.program[location] #Get Operand from specific Memory Location
         if operand == 0:
             raise ValueError("Divide by Zero")
-        self.accumulator = self.accumulator / operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
-        self.counter += 1 #PC Increments
+        self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
+        # self.counter += 1 #PC Increments
         pass
 
 
@@ -109,6 +116,7 @@ class UVSim:
         print(f"Branch to {location}") #Shout for Testing
         self._check_location(location)
         self.counter = location
+        self.counter -= 1
         pass
 
     def _branch_neg(self,location): #41
@@ -117,8 +125,9 @@ class UVSim:
         self._check_location(location)
         if self.accumulator < 0:
             self.counter = location
+            self.counter -= 1
             pass
-        self.counter+=1
+        # self.counter+=1
         pass
 
     def _branch_zero(self,location): #42
@@ -127,28 +136,38 @@ class UVSim:
         self._check_location(location)
         if self.accumulator == 0: #Checks if Zero
             self.counter = location #Moves Counter
+            self.counter -= 1
             pass
-        self.counter+=1 #Increments Counter
+        # self.counter+=1 #Increments Counter
         pass
 
-    def _halt(self): #43
-        '''Pauses the Program'''
-        print(f"Halt the Program") #Shout for Testing
-        #End program Handled By run Method
-        pass
+    # def _halt(self): #43
+    #     '''Pauses the Program'''
+    #     print(f"Halt the Program") #Shout for Testing
+    #     #End program Handled By run Method
+    #     return False # False to stop program, true to continue
 
 
 
 def run(self): #Runs program until Halt
         self.counter = 0 #Reset Counter
         self.accumulator = 0 #Reset Accumulator
-        run_program = True
-        while run_program:
+        # run_program = True
+        while self.counter < len(self.program):
             #Get Next Line
             current = self.program[self.counter] #Start at current PC position
 
+            #If that line is empty
+            if len(current) == 0:
+                while len(current) == 0:
+                    self.counter += 1
+                    current = self.program[self.counter]
+
             #Exract opcode
-            opcode = int(str(current)[:2]) #Get first two digits
+            if current[0] == "-":
+                opcode = int(str(current)[:3]) #Get first three digits
+            else:
+                opcode = int(str(current)[:2]) #Get first two digits
             operand= int(current) % 100 #GeT Last Two Digits
             print(f"OpCode: {opcode} Operand: {operand}")
 
@@ -180,17 +199,16 @@ def run(self): #Runs program until Halt
             elif opcode == 42:
                 self._branch_zero(operand) #BRANCHZERO
 
-            elif opcode == 43:
-                #HALT
-                self._halt()
-                run_program = False
+            elif opcode == 43: #HALT
+                print(f"Halt the Program") #Shout for Testing
+                break
             
             elif opcode == 0: #No Op
                 print("NoOp")
-                self.counter +=1
             else:
                 raise SyntaxError("Invalid Operation")
-
+            
+            self.counter += 1 #PC Increments
             #run_program = False #Escape for Testing
         return 0
 
