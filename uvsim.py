@@ -1,7 +1,7 @@
 class UVSim:
-    def __init__(self, counter, accumulator):
-        self.counter = 0
-        self.accumulator = 0
+    def __init__(self, counter = 0, accumulator = 0):
+        self.counter = counter
+        self.accumulator = accumulator
         with open("./program.txt", "r") as f:
             self.program = f.readlines()
             for p in self.program:
