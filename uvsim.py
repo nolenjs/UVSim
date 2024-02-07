@@ -2,10 +2,10 @@ class UVSim:
     def __init__(self, counter = 0, accumulator = 0):
         self.counter = counter
         self.accumulator = accumulator
-        with open("./program.txt", "r") as f:
+        with open("../program.txt", "r") as f:
             self.program = f.readlines()
-            for p in self.program:
-                p = p.strip() #Remove any whitespace characters
+            for p in range(0,len(self.program)):
+                self.program[p] = self.program[p].strip() #Remove any whitespace characters
 
     def write(self, index):
         print("Save the accumulator's value to the file", self.accumulator)
@@ -132,7 +132,7 @@ def run(self): #Runs program until Halt
 
             #Exract opcode
             opcode = int(str(current)[:2]) #Get first two digits
-            operand= current % 100 #GeT Last Two Digits
+            operand= int(current) % 100 #GeT Last Two Digits
             print(f"OpCode: {opcode} Operand: {operand}")
 
             #Run Operation
