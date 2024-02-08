@@ -134,7 +134,8 @@ def run(self): #Runs program until Halt
                 while len(current) == 0:
                     self.counter += 1
                     current = self.program[self.counter]
-
+            elif len(current) != 4 and (len(current) != 5 and current[0] == "-"):
+                raise SyntaxError("Invalid Operation")
             #Exract opcode
             opcode = int(str(current)[:2]) #Get first two digits
             operand= int(current) % 100 #GeT Last Two Digits
