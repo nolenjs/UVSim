@@ -7,22 +7,12 @@ class UVSim:
             for p in range(0,len(self.program)):
                 self.program[p] = self.program[p].strip() #Remove any whitespace characters
 
-    def write(self, index):
-        temp = "" #
-        if self.accumulator < 1000:
-            temp += "0"
-            if self.accumulator < 100:
-                temp += "0"
-        self.program[index] = temp + str(self.accumulator)
-        return self.accumulator
-
     def _check_location(self,location): #Checks if the location in memory is valid
         if location >=0 or location < len(self.program):
             pass
         else:
             raise IndexError("Location Index out of range")
         pass   
-
 # Individual Methods for the Function of Each BasicML Operation
     
     #I/O Operations
@@ -32,7 +22,6 @@ class UVSim:
         self._check_location(location)
         word = input("Enter a value: ")
         self.program[location] = int(word) #Store word at location in file
-        # self.counter +=1
         pass
 
     def _write(self, location): #11
@@ -40,14 +29,19 @@ class UVSim:
         print(f"Print From {location} to Screen") #Shout for Testing
         self._check_location(location)
         word = self.program[location] #Get word from location in file
-        print(word) 
-        # self.counter +=1
+        print(word)  
         pass
 
 
     #Load / Store Operations
     def _load(self, location): #20
         '''Loads a word from a specific Memory Location into the Accumulator'''
+        self._check_location(location)
+        self.accumulator = int(self.program[location])
+        pass
+
+    def _store(self, location): #21
+        '''Store a Word from the Accumulator into a specific Memory Location'''        
         self._check_location(location)
         temp = "" # To fill the 4-digit requirement of a word
         if self.accumulator < 1000 and self.accumulator > -1000:
@@ -57,16 +51,6 @@ class UVSim:
         if self.accumulator < 0:
             temp = "-" + temp
         self.program[location] = temp + str(self.accumulator)
-        # self.counter +=1
-        pass
-
-    def _store(self, location): #21
-        '''Store a Word from the Accumulator into a specific Memory Location'''
-        print(f"Store From Accumulator to {location}") #Shout for Testing
-        self._check_location(location)
-        word = self.accumulator
-        self.program[location] = word #store word at location in file
-        # self.counter +=1
         pass
 
 
@@ -77,7 +61,6 @@ class UVSim:
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
         self.accumulator = self.accumulator + operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
-        # self.counter += 1 #PC Increments
         pass
 
     def _subract(self, location): #31
@@ -86,7 +69,6 @@ class UVSim:
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
         self.accumulator = self.accumulator - operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
-        # self.counter += 1 #PC Increments
         pass
 
     def _multiply(self, location): #32
@@ -95,7 +77,6 @@ class UVSim:
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
         self.accumulator = self.accumulator * operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand)
-        # self.counter += 1 #PC Increments
         pass
 
     def _divide(self, location): #33
@@ -106,7 +87,6 @@ class UVSim:
         if operand == 0:
             raise ValueError("Divide by Zero")
         self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
-        # self.counter += 1 #PC Increments
         pass
 
 
@@ -127,7 +107,6 @@ class UVSim:
             self.counter = location
             self.counter -= 1
             pass
-        # self.counter+=1
         pass
 
     def _branch_zero(self,location): #42
@@ -138,21 +117,11 @@ class UVSim:
             self.counter = location #Moves Counter
             self.counter -= 1
             pass
-        # self.counter+=1 #Increments Counter
         pass
-
-    # def _halt(self): #43
-    #     '''Pauses the Program'''
-    #     print(f"Halt the Program") #Shout for Testing
-    #     #End program Handled By run Method
-    #     return False # False to stop program, true to continue
-
-
 
 def run(self): #Runs program until Halt
         self.counter = 0 #Reset Counter
         self.accumulator = 0 #Reset Accumulator
-        # run_program = True
         while self.counter < len(self.program):
             #Get Next Line
             current = self.program[self.counter] #Start at current PC position
