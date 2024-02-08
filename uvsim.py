@@ -18,7 +18,7 @@ class UVSim:
     #I/O Operations
     def _read(self, location): #10
         '''Reads a Word from the Keyboard and stores it in a Memory Location'''
-        print(f"Read From Keyboard to: {location}") #Shout for Testing
+        #print(f"Read From Keyboard to: {location}") #Shout for Testing
         self._check_location(location)
         word = input("Enter a value: ")
         if len(word) == 4 or (len(word) == 5 and word[0] == "-"):
@@ -29,7 +29,7 @@ class UVSim:
 
     def _write(self, location): #11
         '''Writes a Word from a specific Memory Location to the screen.'''
-        print(f"Print From {location} to Screen") #Shout for Testing
+        #print(f"Print From {location} to Screen") #Shout for Testing
         self._check_location(location)
         word = self.program[location] #Get word from location in file
         print(word)  
@@ -60,7 +60,7 @@ class UVSim:
     #Arithmetic Operations
     def _add(self, location): #30
         '''Add the value from a specific Memory Location to the Accumulator'''
-        print(f"Add from {location} to Accumulator") #Shout for Testing
+        #print(f"Add from {location} to Accumulator") #Shout for Testing
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
         self.accumulator = self.accumulator + operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
@@ -68,7 +68,7 @@ class UVSim:
 
     def _subract(self, location): #31
         '''Subtract the value from a specific Memory Location from the Accumulator'''
-        print(f"Subtract from {location} from Accumulator") #Shout for Testing
+        #print(f"Subtract from {location} from Accumulator") #Shout for Testing
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
         self.accumulator = self.accumulator - operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
@@ -76,7 +76,7 @@ class UVSim:
 
     def _multiply(self, location): #32
         '''Multiply the Accumulator value by a value stored in a specific Memory Location'''
-        print(f"Multipy from {location} by Accumulator") #Shout for Testing
+        #print(f"Multipy from {location} by Accumulator") #Shout for Testing
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
         self.accumulator = self.accumulator * operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand)
@@ -84,7 +84,7 @@ class UVSim:
 
     def _divide(self, location): #33
         '''Divide the Accumulator value by a value stored in a specific Memory Location'''
-        print(f"Divide from {location} by Accumulator") #Shout for Testing
+        #print(f"Divide from {location} by Accumulator") #Shout for Testing
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
         if operand == 0:
@@ -96,7 +96,7 @@ class UVSim:
     #Control Operations
     def _branch(self, location): #40
         '''Branches Unconditionally to a specific Memory Location'''
-        print(f"Branch to {location}") #Shout for Testing
+        #print(f"Branch to {location}") #Shout for Testing
         self._check_location(location)
         self.counter = location
         self.counter -= 1
@@ -104,7 +104,7 @@ class UVSim:
 
     def _branch_neg(self,location): #41
         '''Branches to a specific Memory Location is the Accumulator is Negative'''
-        print(f"Branch to {location} if Neg") #Shout for Testing
+        #print(f"Branch to {location} if Neg") #Shout for Testing
         self._check_location(location)
         if self.accumulator < 0:
             self.counter = location
@@ -114,7 +114,7 @@ class UVSim:
 
     def _branch_zero(self,location): #42
         '''Branches to a specific Memory Location is the Accumulator is Zero'''
-        print(f"Branch to {location} if Zero") #Shout for Testing
+        #print(f"Branch to {location} if Zero") #Shout for Testing
         self._check_location(location)
         if self.accumulator == 0: #Checks if Zero
             self.counter = location #Moves Counter
@@ -122,7 +122,7 @@ class UVSim:
             pass
         pass
 
-def run(self): #Runs program until Halt
+    def run(self): #Runs program until Halt
         self.counter = 0 #Reset Counter
         self.accumulator = 0 #Reset Accumulator
         while self.counter < len(self.program):
