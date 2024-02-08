@@ -24,6 +24,7 @@ class UVSim:
         if len(word) == 4 or (len(word) == 5 and word[0] == "-"):
             self.program[location] = int(word) #Store word at location in file
         else:
+            print("Please Enter a Valid Word: Ex 0004")
             self._read(location)
         pass
 
