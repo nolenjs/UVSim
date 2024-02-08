@@ -4,8 +4,6 @@ class UVSim:
         self.accumulator = accumulator
         with open("./program.txt", "r") as f:
             self.program = f.readlines()
-            if len(self.program) > 100:
-                raise SyntaxError("Program file too long (100 lines or less)")
             for p in range(0,len(self.program)):
                 self.program[p] = self.program[p].strip() #Remove any whitespace characters
 
