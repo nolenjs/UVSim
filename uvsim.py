@@ -133,10 +133,7 @@ def run(self): #Runs program until Halt
                     current = self.program[self.counter]
 
             #Exract opcode
-            if current[0] == "-":
-                opcode = int(str(current)[:3]) #Get first three digits
-            else:
-                opcode = int(str(current)[:2]) #Get first two digits
+            opcode = int(str(current)[:2]) #Get first two digits
             operand= int(current) % 100 #GeT Last Two Digits
             print(f"OpCode: {opcode} Operand: {operand}")
 
