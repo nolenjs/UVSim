@@ -21,7 +21,10 @@ class UVSim:
         print(f"Read From Keyboard to: {location}") #Shout for Testing
         self._check_location(location)
         word = input("Enter a value: ")
-        self.program[location] = int(word) #Store word at location in file
+        if len(word) == 4 or (len(word) == 5 and word[0] == "-"):
+            self.program[location] = int(word) #Store word at location in file
+        else:
+            self._read(location)
         pass
 
     def _write(self, location): #11
