@@ -4,18 +4,14 @@ from unittest.mock import patch
 
 '''
 TODO
-Initialization: Add another check to make sure the program read the file correctly 
 Valid Input: Test multiple valid input arguments, include different opcodes
-Invalid Input: Test multiple invalid input arguments, include inputs with different length and letter values (not digit)
-Input without Halt: A program without a halt instruction should raise an error or else it will be stuck in an infinite loop
-Read: Test the read function that has input within it
-Halt: Ensure halt opcode works
-Arithmetic Operations: Add tests with inproper and different data types
-
 '''
+@pytest.fixture
+def model():
+    return uvsim.UVSim()
 
 # Test Initialization
-def test_initialization():  # Test Initilization of object.
+def test_initialization():  #1 Test Initilization of object.
     with open("program.txt","w") as f:
          f.write("1005\n")
          f.write("1105\n")
@@ -29,25 +25,35 @@ def test_initialization():  # Test Initilization of object.
     assert model.program == ["1005","1105","2005","4207","4009"]
 
 
-
 # Test Run: Valid Input
-def test_valid_input():
+def test_valid_input(): #2
     model = uvsim.UVSim()
-    model.program = []  # Valid Input
+    program = ["1000", "1100", "1001","1101","2000","3001","2102", "1102" ,"4300"]   # Valid Input
+    with patch('builtins.input', side_effect=["-0001","-0020"]):
+        model.program = program
+        result = model.run() # Program ran to completion and terminated at halt instruction
+        assert result == True # Halt instruction returns True
 
 # Test Run: Invalid Input
-def test_invalid_input():
+def test_invalid_input():   #3 Tests invalid input
     model = uvsim.UVSim()
-    model.program = ["", "1209", ""]    # Invalid Input
+    model.program = ["1100", "2100", "4ha3"]    # Invalid Input
+    try:
+        model.run() # If input is invalid while running code, the program will raise a syntax error
+    except SyntaxError as e:
+        assert str(e) == 'Invalid Operation'
+
 
 # Test Run: Halt
-def test_halt():
+def test_halt(): #4
     model = uvsim.UVSim()
-    model.program = []
+    model.program = ["4300"]
+    result = model.run()
+    assert result == True   # If halt instruciton is reached, program will return True
 
 
 # Test Location Checker
-def test_check_location():  # Testing a function that validates memory indexes.
+def test_check_location():  #5 Testing a function that validates memory indexes.
     model = uvsim.UVSim()
     model.program = [2,4,6,8,20,12] # the length of this memory is 6
     result = model._check_location(3)  # Valid index of memory, will return location
@@ -63,15 +69,17 @@ def test_check_location():  # Testing a function that validates memory indexes.
     except IndexError as e:
         assert str(e) == "Location Index out of range"
 
-'''
-'''
-# Test I/O Operations
-def test_write():   # Tests function that prints a word to screen from specified memory location.
-    model = uvsim.UVSim()
-    model.program = [1,2,3,4,5,6,7,8,9]
-    result = model._write(8)           # This should return what is being printed to the console
-    assert result == 9
 
+# Test I/O Operations
+def test_write():   #6 Tests function that prints a word to screen from specified memory location.
+    model = uvsim.UVSim()
+    model.program = ["1","2","3","4","5","6","7","8","9"]
+    result = model._write(8)           # This should return what is being printed to the console
+    assert result == "9"
+
+def test_write():   #7 Bound check
+    model = uvsim.UVSim()
+    model.program = ["1","2","3","4","5","6","7","8","9"]
     try:
         model._write(105)   # Out of bounds index (should raise an index error)
     except IndexError as e:
@@ -82,21 +90,18 @@ def test_write():   # Tests function that prints a word to screen from specified
     except IndexError as e:
         assert str(e) == "Location Index out of range"
 
-@pytest.fixture
-def model():
-    return uvsim.UVSim()
 
-def test_read(model): # Tests reading input and storing it to memory location
+def test_read(model): #8 Tests reading input and storing it to memory location
     with patch('builtins.input', side_effect=["1234"]):
-        model.program = [1,2,3,4,5,6]
+        model.program = ["1","2","3","4","5","6"]
         result = model._read(5)
         assert result == "1234"
 
         assert model.program[5] == "1234"
 
-def test_read_2(model): # Memory bound check
+def test_read_2(model): #9 Memory bound check
     with patch("builtins.input", side_effects=['-6789']): # all invalid input will be ignored
-        model.program = [1,2,3,4,5,6]
+        model.program = ["1","2","3","4","5","6"]
         
         try:
             model._read(10)
@@ -109,12 +114,29 @@ def test_read_2(model): # Memory bound check
             assert str(e) == "Location Index out of range"
 
 # Test Load/Store Operations
-def test_store():   # Tests store function that stores accumulator to memory location 
+def test_store():   #10 Tests store function that stores accumulator to memory location 
     model = uvsim.UVSim()
-    model.program = [1,2,3,4,5] # Memory bound is 0-4
+    model.program = ["1","2","3","4","5"] # Memory bound is 0-4
     model.accumulator = 1099
     model._store(2)         # Value of Accumulator, 1099, is stored at memory location 2
-    assert model.program[2] == model.accumulator
+    assert model.program[2] == "1099"
+
+    model.accumulator = 5
+    model._store(3) # Store function will add on extra 0s if it doesn't have a length of 4 and a negative if it is negative
+    assert model.program[3] == "0005"
+
+    model.accumulator = 50
+    model._store(3)
+    assert model.program[3] == "0050"
+
+    model.accumulator = -5
+    model._store(3)
+    assert model.program[3] == "-0005"
+
+
+def test_store_bound(): #11
+    model = uvsim.UVSim()
+    model.program = ["1","2","3","4","5"] # Memory bound is 0-4
 
     try:                # Under bound check, memory at location -2 doesn't exist
         model._store(-2)
@@ -126,30 +148,35 @@ def test_store():   # Tests store function that stores accumulator to memory loc
     except IndexError as e:
         assert str(e) == "Location Index out of range"
 
-# def test_load():    # Tests load function that loads accumulaotr with value from memory location
-#     model = uvsim.UVSim()
-#     model.program = [1,2,3,4,5] 
-#     model._load(2)      # Loads the value at memory location 2, 3, to the accumulator
-#     assert 3 == model.accumulator
+
+def test_load():    #12 Tests load function that loads accumulaotr with value from memory location
+    model = uvsim.UVSim()
+    model.program = ["1","2","3","4","5"]
+    model._load(2)      # Loads the value at memory location 2, 3, to the accumulator
+    assert 3 == model.accumulator
     
-#     try:                # Under bound check, memory at location -2 doesn't exist
-#         model._load(-2)
-#     except IndexError as e:
-#         assert str(e) == "Location Index out of range"
+def test_load_bound(): #13
+    model = uvsim.UVSim()
+    model.program = ["1","2","3","4","5"] 
+
+    try:                # Under bound check, memory at location -2 doesn't exist
+        model._load(-2)
+    except IndexError as e:
+        assert str(e) == "Location Index out of range"
     
-#     try:            
-#         model._load(5)     # Over bound check, memory at location 5 doesn't exist
-#     except IndexError as e:
-#         assert str(e) == "Location Index out of range"
+    try:            
+        model._load(5)     # Over bound check, memory at location 5 doesn't exist
+    except IndexError as e:
+        assert str(e) == "Location Index out of range"
 
 
 
 # Test Arithmetic Operations
 # ADD TESTS WITH INPROPER VALUE TYPE 
     
-def test_add():     # Test add function and bounds check
+def test_add():     #14 Test add function and bounds check
     model = uvsim.UVSim()
-    model.program = [1,2,3,4,5]
+    model.program = ["1","2","3","4","5"]
     model.accumulator = 10
     model._add(2)   # This will add acumulator (10) and memory location 2 (3) and store the result (13) in accumulaotr 
     assert model.accumulator == 13 
@@ -165,9 +192,9 @@ def test_add():     # Test add function and bounds check
         assert str(e) == "Location Index out of range"
 
 
-def test_subtract():    # Test subtraction function and bounds check
+def test_subtract():    #15 Test subtraction function and bounds check
     model = uvsim.UVSim()
-    model.program = [1,2,3,4,5]
+    model.program = ["1","2","3","4","5"]
     model.accumulator = 10
     model._subtract(2)  # This will subtract the value at memory location 2 (3) from the value in accumulaotr (10) and store result (7) in accumulator
     assert model.accumulator == 7
@@ -183,9 +210,9 @@ def test_subtract():    # Test subtraction function and bounds check
         assert str(e) == "Location Index out of range"
 
 
-def test_multiply():       # Test Multiply function and bounds check
+def test_multiply():       #16 Test Multiply function and bounds check
     model = uvsim.UVSim()
-    model.program = [1,2,3,4,5]
+    model.program = ["1","2","3","4","5"]
     model.accumulator = 10
     model._multiply(2)  # Multiplies accumulator (10) and memory location 2 (3). Stores result (30) in accumulator
     assert model.accumulator == 30
@@ -201,9 +228,9 @@ def test_multiply():       # Test Multiply function and bounds check
         assert str(e) == "Location Index out of range"
 
 
-def test_divide():      # Test Divide function, integer division, division by 0, and bounds check
+def test_divide():      #17 Test Divide function, integer division, division by 0, and bounds check
     model = uvsim.UVSim()
-    model.program = [1,2,3,4,0]
+    model.program = ["1","2","3","4","0"]
 
     model.accumulator = 10
     model._divide(1)    # Divides accumulator (10) by memory location 1 (2). Stores result (2) in accumulator
@@ -233,11 +260,15 @@ def test_divide():      # Test Divide function, integer division, division by 0,
 
 
 # Test Control Operations
-def test_branch():  # Tests branch to location 8. Also makes sure branch is within memory bound.
+def test_branch():  #18 Tests branch to location 8. Also makes sure branch is within memory bound.
     model = uvsim.UVSim()
     model.program = [1,2,3,4,5,6,7,8,9,10]
     model._branch(8)    # Changes program counter to branch location 8
     assert model.counter == 8   
+
+def test_branch_bound(): #19
+    model = uvsim.UVSim()
+    model.program = [1,2,3,4,5,6,7,8,9,10]
 
     try:                # Under bound check, memory at locatoin -2 doesn't exist
         model._branch(-2)
@@ -251,7 +282,7 @@ def test_branch():  # Tests branch to location 8. Also makes sure branch is with
 
 
 
-def test_branchneg():   # Tests branch on negative, positive, and zero values of accumulator. Also checks branch is within memory bound.
+def test_branchneg():   #20 Tests branch on negative, positive, and zero values of accumulator. Also checks branch is within memory bound.
     model = uvsim.UVSim()
     model.program = [1,2,3,4,5,6,7,8,9,10]
     model.accumulator = -5
@@ -266,6 +297,10 @@ def test_branchneg():   # Tests branch on negative, positive, and zero values of
     model._branch_neg(8)    # Will not change counter to location 8 as accumulator (1) is not negative.
     assert model.counter == 5
 
+def test_branchneg_bound(): #21
+    model = uvsim.UVSim()
+    model.program = [1,2,3,4,5,6,7,8,9,10]
+
     try:                # Under bound check, memory at locatoin -2 doesn't exist
         model._branch_neg(-2)
     except IndexError as e:
@@ -279,7 +314,7 @@ def test_branchneg():   # Tests branch on negative, positive, and zero values of
 
 
 
-def test_branchzero():  # ests branch on negative, positive, and zero values of accumulator.  Also checks branch is within memory bound.
+def test_branchzero():  #22 ests branch on negative, positive, and zero values of accumulator.  Also checks branch is within memory bound.
     model = uvsim.UVSim()
     model.program = [1,2,3,4,5,6,7,8,9,10]
     model.accumulator = 0
@@ -294,6 +329,11 @@ def test_branchzero():  # ests branch on negative, positive, and zero values of 
     model._branch_zero(7)   # Will not change counter to location 7 as accumulator is not zero. 
     assert model.counter == 5
 
+
+def test_branchzero_bound(): #23
+    model = uvsim.UVSim()
+    model.program = [1,2,3,4,5,6,7,8,9,10]
+
     try:                # Under bound check, memory at locatoin -2 doesn't exist
         model._branch_zero(-2)
     except IndexError as e:
@@ -303,6 +343,3 @@ def test_branchzero():  # ests branch on negative, positive, and zero values of 
         model._branch_zero(10)     # Over bound check, memory at location 5 doesn't exist
     except IndexError as e:
         assert str(e) == "Location Index out of range"
-
-# Test Halt
-

@@ -34,7 +34,7 @@ class UVSim:
                 if word.isdigit():
                     break
 
-        self.program[location] = word #Store word at location in file
+        self.program[location] = str(word) #Store word at location in file
         self.counter +=1
         return word
     
@@ -52,25 +52,34 @@ class UVSim:
     def _load(self, location): #20
         '''Loads a word from a specific Memory Location into the Accumulator'''
         self._check_location(location)
+        self.accumulator = int(self.program[location])
+        self.counter += 1
+        
+
+    # def _store(self, location): #21
+    #     '''Store a Word from the Accumulator into a specific Memory Location'''
+    #     print(f"Store From Accumulator to {location}") #Shout for Testing
+    #     self._check_location(location)
+    #     word = self.accumulator
+    #     self.program[location] = str(word) #store word at location in file
+    #     self.counter +=1
+        
+    def _store(self, location): #21
+        '''Store a Word from the Accumulator into a specific Memory Location'''        
+        self._check_location(location)
         temp = "" # To fill the 4-digit requirement of a word
+        if self.accumulator < 0:
+            temp = "-" + temp
+            self.accumulator = self.accumulator * -1
         if self.accumulator < 1000 and self.accumulator > -1000:
             temp += "0"
             if self.accumulator < 100 and self.accumulator > -100:
                 temp += "0"
-        if self.accumulator < 0:
-            temp = "-" + temp
+                if self.accumulator < 10 and self.accumulator > -10:
+                    temp += "0"
+        
         self.program[location] = temp + str(self.accumulator)
-        self.counter +=1
-        
-
-    def _store(self, location): #21
-        '''Store a Word from the Accumulator into a specific Memory Location'''
-        print(f"Store From Accumulator to {location}") #Shout for Testing
-        self._check_location(location)
-        word = self.accumulator
-        self.program[location] = word #store word at location in file
-        self.counter +=1
-        
+        self.counter += 1
 
 
     #Arithmetic Operations
@@ -79,6 +88,7 @@ class UVSim:
         print(f"Add from {location} to Accumulator") #Shout for Testing
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
+        operand = int(operand)
         self.accumulator = self.accumulator + operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
         self.counter += 1 #PC Increments
         
@@ -88,6 +98,7 @@ class UVSim:
         print(f"Subtract from {location} from Accumulator") #Shout for Testing
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
+        operand = int(operand)
         self.accumulator = self.accumulator - operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
         self.counter += 1 #PC Increments
         
@@ -97,6 +108,7 @@ class UVSim:
         print(f"Multipy from {location} by Accumulator") #Shout for Testing
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
+        operand = int(operand)
         self.accumulator = self.accumulator * operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand)
         self.counter += 1 #PC Increments
         
@@ -106,6 +118,7 @@ class UVSim:
         print(f"Divide from {location} by Accumulator") #Shout for Testing
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
+        operand = int(operand)
         if operand == 0:
             raise ValueError("Divide by Zero")
         self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
@@ -152,6 +165,17 @@ class UVSim:
             while run_program:
                 #Get Next Line
                 current = self.program[self.counter] #Start at current PC position
+
+                # Validates the Input
+
+                #If that line is empty
+                if len(current) == 0:
+                    while len(current) == 0:
+                        self.counter += 1
+                        current = self.program[self.counter]
+
+                elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
+                    raise SyntaxError("Invalid Operation")
 
                 #Exract opcode
                 if current[0] == "-":
@@ -210,6 +234,8 @@ class UVSim:
 
 def main(): #The Console interface for the Program
     sim = UVSim(0,0) #Create a UVSim object for the user to use in the console appliaction
+    sim.program = ["1100", "2100", "4ha3"]
+    sim.run()
 
 
 if __name__ == "__main__":
