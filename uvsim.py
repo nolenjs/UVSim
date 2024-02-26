@@ -9,6 +9,12 @@ class UVSim:
 
     #Other functions to come, but something to get started
         #kicks and giggles
+                
+    def get_accumulator(self):
+        return self.accumulator
+    
+    def get_counter(self):
+        return self.counter
 
     def _check_location(self,location): #Checks if the location in memory is valid
         if location >=0 and location < len(self.program):
@@ -159,84 +165,76 @@ class UVSim:
 
 
     def run(self): #Runs program until Halt
-            self.counter = 0 #Reset Counter
-            self.accumulator = 0 #Reset Accumulator
-            run_program = True
-            while run_program:
-                #Get Next Line
-                current = self.program[self.counter] #Start at current PC position
+        self.counter = 0 #Reset Counter
+        self.accumulator = 0 #Reset Accumulator
+        run_program = True
+        while run_program:
+            #Get Next Line
+            current = self.program[self.counter] #Start at current PC position
 
-                # Validates the Input
+            # Validates the Input
 
-                #If that line is empty
-                if len(current) == 0:
-                    while len(current) == 0:
-                        self.counter += 1
-                        current = self.program[self.counter]
-
-                elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
-                    raise SyntaxError("Invalid Operation")
-
-                #Exract opcode
-                if current[0] == "-":
-                    opcode = int(str(current)[:3]) #Get first three digits
-                else:
-                    opcode = int(str(current)[:2]) #Get first two digits
-                operand= int(current) % 100 #GeT Last Two Digits
-                print(f"OpCode: {opcode} Operand: {operand}")
-
-                #Run Operation
-
-                if opcode == 10:
-                    self._read(operand) #READ
-                elif opcode == 11:
-                    self._write(operand) #WRITE
-
-                elif opcode == 20:
-                    self._load(operand) #LOAD
-                elif opcode == 21:
-                    self._store(operand) #STORE
-
-                elif opcode == 30:
-                    self._add(operand) #ADD
-                elif opcode == 31:
-                    self._subtract(operand) #SUB
-                elif opcode == 32:
-                    self._multiply(operand) #MUL
-                elif opcode == 33:
-                    self._divide(operand) #DIV
-
-                elif opcode == 40:
-                    self._branch(operand) #BRANCH
+            #If that line is empty
+            if len(current) == 0:
+                while len(current) == 0:
                     self.counter += 1
-                elif opcode == 41:
-                    self._branch_neg(operand) #BRANCHNEG
-                    self.counter += 1
-                elif opcode == 42:
-                    self._branch_zero(operand) #BRANCHZERO
-                    self.counter += 1
+                    current = self.program[self.counter]
 
-                elif opcode == 43:
-                    #HALT
-                    self._halt()
-                    run_program = False
-                    return True
-                
-                elif opcode == 0: #No Op
-                    print("NoOp")
-                    self.counter +=1
-                else:
-                    raise SyntaxError("Invalid Operation")
+            elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
+                raise SyntaxError("Invalid Operation")
 
-                #run_program = False #Escape for Testing
-            return False
+            #Exract opcode
+            if current[0] == "-":
+                opcode = int(str(current)[:3]) #Get first three digits
+            else:
+                opcode = int(str(current)[:2]) #Get first two digits
+            operand= int(current) % 100 #GeT Last Two Digits
+            print(f"OpCode: {opcode} Operand: {operand}")
+
+            #Run Operation
+
+            if opcode == 10:
+                self._read(operand) #READ
+            elif opcode == 11:
+                self._write(operand) #WRITE
+
+            elif opcode == 20:
+                self._load(operand) #LOAD
+            elif opcode == 21:
+                self._store(operand) #STORE
+
+            elif opcode == 30:
+                self._add(operand) #ADD
+            elif opcode == 31:
+                self._subtract(operand) #SUB
+            elif opcode == 32:
+                self._multiply(operand) #MUL
+            elif opcode == 33:
+                self._divide(operand) #DIV
+
+            elif opcode == 40:
+                self._branch(operand) #BRANCH
+                self.counter += 1
+            elif opcode == 41:
+                self._branch_neg(operand) #BRANCHNEG
+                self.counter += 1
+            elif opcode == 42:
+                self._branch_zero(operand) #BRANCHZERO
+                self.counter += 1
+
+            elif opcode == 43:
+                #HALT
+                self._halt()
+                run_program = False
+                return True
+            
+            elif opcode == 0: #No Op
+                print("NoOp")
+                self.counter +=1
+            else:
+                raise SyntaxError("Invalid Operation")
+
+            #run_program = False #Escape for Testing
+        return False
 
 
-def main(): #The Console interface for the Program
-    sim = UVSim(0,0) #Create a UVSim object for the user to use in the console appliaction
-    sim.program = ["1100", "2100", "4ha3"]
-    sim.run()
-
-
-if __name__ == "__main__":
-    main()
