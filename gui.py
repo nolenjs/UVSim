@@ -9,6 +9,7 @@ class GUI:              # Eder Sandoval
     def stop(self):
         #Function that stops the program (this will probably be placed in the 
         # UVSim class but here as a placeholder so the button doesn't run an error)
+        self.simulator.stop = True
         pass
 
     def load(self):

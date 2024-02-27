@@ -2,6 +2,8 @@ class UVSim:
     def __init__(self, counter = 0, accumulator = 0):
         self.counter = counter
         self.accumulator = accumulator
+        self.stop = False
+        self.pause = False
 
         with open("program.txt", "r") as f:
             self.program = f.readlines()
@@ -157,13 +159,11 @@ class UVSim:
         #End program Handled By run Method
         pass
 
-
-
     def run(self): #Runs program until Halt
         self.counter = 0 #Reset Counter
         self.accumulator = 0 #Reset Accumulator
-        run_program = True
-        while run_program:
+        self.stop = False
+        while not self.stop:
             #Get Next Line
             current = self.program[self.counter] #Start at current PC position
 
@@ -185,48 +185,47 @@ class UVSim:
             print(f"OpCode: {opcode} Operand: {operand}")
 
             #Run Operation
+            if not self.pause:
+                if opcode == 10:
+                    self._read(operand) #READ
+                elif opcode == 11:
+                    self._write(operand) #WRITE
 
-            if opcode == 10:
-                self._read(operand) #READ
-            elif opcode == 11:
-                self._write(operand) #WRITE
+                elif opcode == 20:
+                    self._load(operand) #LOAD
+                elif opcode == 21:
+                    self._store(operand) #STORE
 
-            elif opcode == 20:
-                self._load(operand) #LOAD
-            elif opcode == 21:
-                self._store(operand) #STORE
+                elif opcode == 30:
+                    self._add(operand) #ADD
+                elif opcode == 31:
+                    self._subtract(operand) #SUB
 
-            elif opcode == 30:
-                self._add(operand) #ADD
-            elif opcode == 31:
-                self._subtract(operand) #SUB
+                elif opcode == 32:
+                    self._multiply(operand) #MUL
+                elif opcode == 33:
+                    self._divide(operand) #DIV
 
-            elif opcode == 32:
-                self._multiply(operand) #MUL
-            elif opcode == 33:
-                self._divide(operand) #DIV
+                elif opcode == 40:
+                    self._branch(operand) #BRANCH
+                    self.counter += 1
+                elif opcode == 41:
+                    self._branch_neg(operand) #BRANCHNEG
+                    self.counter += 1
+                elif opcode == 42:
+                    self._branch_zero(operand) #BRANCHZERO
+                    self.counter += 1
 
-            elif opcode == 40:
-                self._branch(operand) #BRANCH
-                self.counter += 1
-            elif opcode == 41:
-                self._branch_neg(operand) #BRANCHNEG
-                self.counter += 1
-            elif opcode == 42:
-                self._branch_zero(operand) #BRANCHZERO
-                self.counter += 1
-
-            elif opcode == 43:
-                #HALT
-                self._halt()
-                run_program = False
-                return True
-            
-            elif opcode == 0: #No Op
-                print("NoOp")
-                self.counter +=1
-            else:
-                raise SyntaxError("Invalid Operation")
-
-            #run_program = False #Escape for Testing
+                elif opcode == 43:
+                    #HALT
+                    self._halt()
+                    self.stop = True
+                    return True
+                
+                elif opcode == 0: #No Op
+                    print("NoOp")
+                    self.counter +=1
+                else:
+                    raise SyntaxError("Invalid Operation")
+            #self.stop = False #Escape for Testing
         return False
