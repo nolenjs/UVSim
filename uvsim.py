@@ -2,6 +2,7 @@ class UVSim:
     def __init__(self, counter = 0, accumulator = 0):
         self.counter = counter
         self.accumulator = accumulator
+
         with open("program.txt", "r") as f:
             self.program = f.readlines()
             for p in range(0,len(self.program)):
@@ -21,8 +22,13 @@ class UVSim:
             return location
         else:
             raise IndexError("Location Index out of range")
-           
 
+    def _check_location(self,location): #Checks if the location in memory is valid
+        if location >=0 or location < len(self.program):
+            pass
+        else:
+            raise IndexError("Location Index out of range")
+        pass   
 # Individual Methods for the Function of Each BasicML Operation
     
     #I/O Operations
@@ -53,40 +59,32 @@ class UVSim:
         self.counter +=1
         return word
 
-
     #Load / Store Operations
     def _load(self, location): #20
         '''Loads a word from a specific Memory Location into the Accumulator'''
         self._check_location(location)
         self.accumulator = int(self.program[location])
         self.counter += 1
-        
 
-    # def _store(self, location): #21
-    #     '''Store a Word from the Accumulator into a specific Memory Location'''
-    #     print(f"Store From Accumulator to {location}") #Shout for Testing
-    #     self._check_location(location)
-    #     word = self.accumulator
-    #     self.program[location] = str(word) #store word at location in file
-    #     self.counter +=1
-        
     def _store(self, location): #21
         '''Store a Word from the Accumulator into a specific Memory Location'''        
         self._check_location(location)
         temp = "" # To fill the 4-digit requirement of a word
+
         if self.accumulator < 0:
             temp = "-" + temp
             self.accumulator = self.accumulator * -1
+
         if self.accumulator < 1000 and self.accumulator > -1000:
             temp += "0"
             if self.accumulator < 100 and self.accumulator > -100:
                 temp += "0"
+
                 if self.accumulator < 10 and self.accumulator > -10:
                     temp += "0"
         
         self.program[location] = temp + str(self.accumulator)
         self.counter += 1
-
 
     #Arithmetic Operations
     def _add(self, location): #30
@@ -97,7 +95,6 @@ class UVSim:
         operand = int(operand)
         self.accumulator = self.accumulator + operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
         self.counter += 1 #PC Increments
-        
 
     def _subtract(self, location): #31
         '''Subtract the value from a specific Memory Location from the Accumulator'''
@@ -130,8 +127,6 @@ class UVSim:
         self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
         # self.counter += 1 #PC Increments
         self.counter += 1
-        
-
 
     #Control Operations
     def _branch(self, location): #40
@@ -173,13 +168,11 @@ class UVSim:
             current = self.program[self.counter] #Start at current PC position
 
             # Validates the Input
-
             #If that line is empty
             if len(current) == 0:
                 while len(current) == 0:
                     self.counter += 1
                     current = self.program[self.counter]
-
             elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
                 raise SyntaxError("Invalid Operation")
 
@@ -207,6 +200,7 @@ class UVSim:
                 self._add(operand) #ADD
             elif opcode == 31:
                 self._subtract(operand) #SUB
+
             elif opcode == 32:
                 self._multiply(operand) #MUL
             elif opcode == 33:
@@ -236,5 +230,3 @@ class UVSim:
 
             #run_program = False #Escape for Testing
         return False
-
-
