@@ -9,7 +9,7 @@ class GUI:              # Eder Sandoval
     def stop(self):
         #Function that stops the program (this will probably be placed in the 
         # UVSim class but here as a placeholder so the button doesn't run an error)
-        self.simulator.stop = True
+        self.simulator._halt()
         pass
 
     def load(self):
@@ -76,7 +76,7 @@ class GUI:              # Eder Sandoval
 
         # Create Run and Stop Buttons Row 3
         run_button = Button(my_frame, text="Run", command=self.simulator.run, width=8, height = 2, bg="white")
-        stop_button = Button(my_frame, text="Stop",command=self.stop, width=8, height=2, bg="white")
+        stop_button = Button(my_frame, text="Stop",command=self.simulator._halt, width=8, height=2, bg="white")
 
         run_button.grid(row=3, column=0)
         stop_button.grid(row=3, column = 1)
@@ -88,15 +88,6 @@ class GUI:              # Eder Sandoval
 
         console = Label(my_frame, height=15, width=35, state=DISABLED, background="lightgray",bd=1, relief="solid", highlightbackground="black",highlightcolor="black",highlightthickness=1)
         console.grid(row=5, column=0, columnspan=4)
-
-
-        
-
-
-
-        
-    
-
 
 
     def create_main_window(self):
