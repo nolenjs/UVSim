@@ -2,7 +2,6 @@ class UVSim:
     def __init__(self, counter = 0, accumulator = 0):
         self.counter = counter
         self.accumulator = accumulator
-        self.stop = False
         self.pause = False
 
         with open("program.txt", "r") as f:
@@ -172,5 +171,4 @@ class UVSim:
                 self.counter +=1
             else:
                 raise SyntaxError("Invalid Operation")
-            #self.stop = False #Escape for Testing
         return False
