@@ -1,15 +1,12 @@
 from uvsim import UVSim
 from tkinter import *
+from tkinter.simpledialog import askstring
 
 class GUI:              # Eder Sandoval
     def __init__(self):
         self.root = Tk()
         self.simulator = UVSim()
-
-    def stop(self):
-        #Function that stops the program (this will probably be placed in the 
-        # UVSim class but here as a placeholder so the button doesn't run an error)
-        pass
+        self.console = None # This gets updated later in the code
 
     def load(self):
         #Same as stop
@@ -73,6 +70,7 @@ class GUI:              # Eder Sandoval
         accumulator.grid(row=1, column=0)
         counter.grid(row=2, column=0)
 
+
         # Create Run and Stop Buttons Row 3
         run_button = Button(my_frame, text="Run", command=self.simulator.run, width=8, height = 2, bg="white")
         stop_button = Button(my_frame, text="Stop",command=self.stop, width=8, height=2, bg="white")
@@ -85,17 +83,45 @@ class GUI:              # Eder Sandoval
         console_label = Label(my_frame, text="Console", bg="white", fg="black")
         console_label.grid(row=4, column=0, sticky="ew")
 
-        console = Label(my_frame, height=15, width=35, state=DISABLED, background="lightgray",bd=1, relief="solid", highlightbackground="black",highlightcolor="black",highlightthickness=1)
-        console.grid(row=5, column=0, columnspan=4)
+        text_scroll = Scrollbar(my_frame)
+        text_scroll.grid(row=5, column=4, sticky="ns")
 
+        self.console = Text(my_frame, height=15, width=35, background="lightgray",bd=1, relief="solid", highlightbackground="black",
+                             highlightcolor="black", highlightthickness=1,fg="black",yscrollcommand=text_scroll.set, wrap="word",state="disabled") # state="disabled"
 
+        self.console.grid(row=5, column=0, columnspan=4)
+        self.read_file()
+        self._update_labels(accumulator, counter)
+
+    def _update_labels(self, a, c):
+        a.config(text=f"Accumulator: \n{self.simulator.get_accumulator()}")
+        c.config(text=f"Counter: \n{self.simulator.get_counter()}")
+        self.root.after(1000, self._update_labels, a, c)
         
+    def read_file(self, prev=0):
+        with open("output.txt","r") as file_in:
+            file_in.seek(prev)
+            new_content = file_in.read()
+            if new_content:
+                if new_content[-1] == '|':  # HANDLES INPUT
+                    self.console.config(state="normal")
+                    self.console.insert(END, new_content[:-1])  # Display prompt
+                    #self.console.see(END)  # Scroll to the end to make sure the prompt is visible
+                    #self.console.config(state="disabled")
+
+                    # Wait for user input
+                    input_data = askstring("Input", new_content[:-1])
+                    self.console.insert(END, f" {input_data}")
+
+                    # Process input as needed
 
 
-
-        
-    
-
+                else:   # HANDLES OUTPUT
+                    self.console.config(state="normal")
+                    self.console.insert(END, new_content)
+                    self.console.config(state="disabled")
+            new_last_position = file_in.tell()
+            self.root.after(1000,self.read_file, new_last_position)
 
 
     def create_main_window(self):
@@ -116,7 +142,10 @@ class GUI:              # Eder Sandoval
     
 def main():
     gui = GUI()
+    #gui.simulator.program = ["1000", "1100", "1001","1101","2000","3001","2102", "1102" ,"4300"]   # Valid Input
     gui.create_main_window()
+    #gui._create_program_display()
+
 
 if __name__ == "__main__":
     main()

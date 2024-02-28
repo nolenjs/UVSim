@@ -45,6 +45,7 @@ class UVSim:
             if len(word) == 4:
                 if word.isdigit():
                     break
+            print("Please enter valid input.")
 
         self.program[location] = str(word) #Store word at location in file
         self.counter +=1
@@ -163,6 +164,13 @@ class UVSim:
         self.counter = 0 #Reset Counter
         self.accumulator = 0 #Reset Accumulator
         run_program = True
+
+        # Cannot run empty program
+        if len(self.program) == 0:
+            print("No Program")
+            return True
+        
+        
         while run_program:
             #Get Next Line
             current = self.program[self.counter] #Start at current PC position
