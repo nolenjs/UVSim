@@ -121,54 +121,56 @@ class UVSim:
     def run(self): #Runs program until Halt
         self.counter = 0 #Reset Counter
         self.accumulator = 0 #Reset Accumulator
+        run_program = True
+        while run_program:
+            #Get Next Line
+            current = self.program[self.counter] #Start at current PC position
 
-        #Get Next Line
-        current = self.program[self.counter] #Start at current PC position
-
-        # Validates the Input
-        #If that line is empty
-        if len(current) == 0:
-            while len(current) == 0:
-                self.counter += 1
-                current = self.program[self.counter]
-        elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
-            raise SyntaxError("Invalid Operation")
-
-        #Exract opcode
-        if current[0] == "-":
-            opcode = int(str(current)[:3]) #Get first three digits
-        else:
-            opcode = int(str(current)[:2]) #Get first two digits
-        operand= int(current) % 100 #GeT Last Two Digits
-        print(f"OpCode: {opcode} Operand: {operand}")
-
-        #Run Operation
-        if not self.pause:
-            if opcode == 10:
-                self._read(operand) #READ
-            elif opcode == 11:
-                self._write(operand) #WRITE
-
-            elif opcode == 20:
-                self._load(operand) #LOAD
-            elif opcode == 21:
-                self._store(operand) #STORE
-
-            elif opcode >= 30 or opcode <= 33:
-                self._arithmetic(opcode, operand) #ADD
-
-            elif opcode <= 40 or opcode >= 42:
-                self._branch(opcode, operand) #BRANCH
-                self.counter += 1
-
-            elif opcode == 43:
-                #HALT
-                self._halt()
-                return True
-            
-            elif opcode == 0: #No Op
-                print("NoOp")
-                self.counter +=1
-            else:
+            # Validates the Input
+            #If that line is empty
+            if len(current) == 0:
+                while len(current) == 0:
+                    self.counter += 1
+                    current = self.program[self.counter]
+            elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
                 raise SyntaxError("Invalid Operation")
-        return False
+
+            #Exract opcode
+            if current[0] == "-":
+                opcode = int(str(current)[:3]) #Get first three digits
+            else:
+                opcode = int(str(current)[:2]) #Get first two digits
+            operand= int(current) % 100 #GeT Last Two Digits
+            print(f"OpCode: {opcode} Operand: {operand}")
+
+            #Run Operation
+            if not self.pause:
+                if opcode == 10:
+                    self._read(operand) #READ
+                elif opcode == 11:
+                    self._write(operand) #WRITE
+
+                elif opcode == 20:
+                    self._load(operand) #LOAD
+                elif opcode == 21:
+                    self._store(operand) #STORE
+
+                elif opcode >= 30 or opcode <= 33:
+                    self._arithmetic(opcode, operand) #ADD
+
+                elif opcode <= 40 or opcode >= 42:
+                    self._branch(opcode, operand) #BRANCH
+                    self.counter += 1
+
+                elif opcode == 43:
+                    #HALT
+                    self._halt()
+                    run_program = False
+                    return True
+                
+                elif opcode == 0: #No Op
+                    print("NoOp")
+                    self.counter +=1
+                else:
+                    raise SyntaxError("Invalid Operation")
+            return False
