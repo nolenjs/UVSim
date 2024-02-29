@@ -7,12 +7,8 @@ class UVSim:
     def __init__(self, counter = 0, accumulator = 0):
         self.counter = counter
         self.accumulator = accumulator
-<<<<<<< HEAD
         self.gui = GUI()
         #self.pause = False
-=======
-        self.pause = False
->>>>>>> main
 
         with open("program.txt", "r") as f:
             self.program = f.readlines()
@@ -40,10 +36,6 @@ class UVSim:
             return location
         else:
             raise IndexError("Location Index out of range")
-<<<<<<< HEAD
-
-=======
->>>>>>> main
 # Individual Methods for the Function of Each BasicML Operation
     
     #I/O Operations
@@ -126,18 +118,11 @@ class UVSim:
             self.accumulator = self.accumulator * operand
         if code == 33:
             if operand == 0:
-<<<<<<< HEAD
 
                 raise ValueError("Divide by Zero")
             self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
         self.counter += 1 #PC Increments
 
-=======
-                raise ValueError("Divide by Zero")
-            self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
-        self.counter += 1 #PC Increments
-
->>>>>>> main
     #Control Operations
     def _branch(self, code, location): #40
         '''Branches Unconditionally to a specific Memory Location'''
@@ -198,56 +183,21 @@ class UVSim:
                 elif opcode >= 30 and opcode <= 33:
                     self._arithmetic(opcode, operand) #ADD
 
-                elif opcode <= 40 and opcode >= 42:
+                elif opcode >= 40 and opcode <= 42:
                     self._branch(opcode, operand) #BRANCH
                     self.counter += 1
 
-<<<<<<< HEAD
-=======
-            #Exract opcode
-            if current[0] == "-":
-                opcode = int(str(current)[:3]) #Get first three digits
-            else:
-                opcode = int(str(current)[:2]) #Get first two digits
-            operand= int(current) % 100 #GeT Last Two Digits
-            print(f"OpCode: {opcode} Operand: {operand}")
-
-            #Run Operation
-            if not self.pause:
-                if opcode == 10:
-                    self._read(operand) #READ
-                elif opcode == 11:
-                    self._write(operand) #WRITE
-
-                elif opcode == 20:
-                    self._load(operand) #LOAD
-                elif opcode == 21:
-                    self._store(operand) #STORE
-
-                elif opcode >= 30 or opcode <= 33:
-                    self._arithmetic(opcode, operand) #ADD
-
-                elif opcode <= 40 or opcode >= 42:
-                    self._branch(opcode, operand) #BRANCH
-                    self.counter += 1
-
->>>>>>> main
                 elif opcode == 43:
                     #HALT
                     self._halt()
                     run_program = False
-<<<<<<< HEAD
                     #return True
-=======
-                    return True
->>>>>>> main
                 
                 elif opcode == 0: #No Op
                     print("NoOp")
                     self.counter +=1
                 else:
                     raise SyntaxError("Invalid Operation")
-<<<<<<< HEAD
                 self.gui._update_labels(self.gui.labels[0], self.gui.labels[1], self.get_accumulator(), self.get_counter())
             # return False
             except (SyntaxError, ValueError, IndexError) as e:
@@ -261,6 +211,3 @@ def main():
     
 if __name__ == "__main__":
     main()
-=======
-            return False
->>>>>>> main
