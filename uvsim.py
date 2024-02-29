@@ -1,10 +1,14 @@
 import os
+from tkinter import *
+from tkinter.simpledialog import askstring
+from gui import GUI
 
 class UVSim:
     def __init__(self, counter = 0, accumulator = 0):
         self.counter = counter
         self.accumulator = accumulator
-        self.pause = False
+        self.gui = GUI()
+        #self.pause = False
 
         with open("program.txt", "r") as f:
             self.program = f.readlines()
@@ -12,10 +16,17 @@ class UVSim:
                 self.program[p] = self.program[p].strip() #Remove any whitespace characters
 
     #Other functions to come, but something to get started
-        #kicks and giggles
+        #kicks and giggles        
                 
     def get_accumulator(self):
         return self.accumulator
+    
+    def get_run(self):
+        return self.run
+    
+    def get_halt(self):
+        return self._halt
+
     
     def get_counter(self):
         return self.counter
@@ -38,29 +49,24 @@ class UVSim:
         '''Reads a Word from the Keyboard and stores it in a Memory Location'''
         print(f"Read From Keyboard to: {location}") #Shout for Testing
         self._check_location(location)
-        condition = False
-            
-        with open("output.txt", "a") as file_out:       # Prompt User for Input: 
-            file_out.write("Enter a value as form of a word (4 digits with an optional negative sign in front):|")
-            
-        if os.path.getsize("input.txt") > 0:            # If Input file changes or in other words, if input is entered
-            with open("input.txt","r") as file_in:
-                word = file_in.read()
-                if len(word) == 5 and word[0] == '-':
-                    if word[1:].isdigit():
-                        condition = True
+        word = askstring("Input", "Enter valid word:") 
+   
+        if len(word) == 5 and word[0] == '-':
+            if word[1:].isdigit():
+                pass
 
-                elif len(word) == 4:
-                    if word.isdigit():
-                        condition = True
-
-                else: 
-                    raise TypeError("Invalid Type")  
-            
-                if condition == True:
-                    self.program[location] = str(word) #Store word at location in file
-                    self.counter +=1
-                    return word
+        elif len(word) == 4:
+            if word.isdigit():
+                pass
+        else: 
+            raise ValueError("Invalid Input")  
+    
+        self.program[location] = str(word) #Store word at location in file
+        self.gui.console.config(state="normal")
+        self.gui.console.insert(END, f"Enter valid word: {word}\n")
+        self.gui.console.config(state="disabled")
+        self.counter += 1
+        return word
 
         
     
@@ -70,8 +76,9 @@ class UVSim:
         self._check_location(location)
         word = self.program[location] #Get word from location in file
         # print(word)
-        with open("output.txt","a") as file_out:
-            file_out.write(f"{word}") 
+        self.gui.console.config(state="normal")
+        self.gui.console.insert(END, f"{word}\n")
+        self.gui.console.config(state="disabled")
         self.counter +=1
         return word
 
@@ -141,41 +148,35 @@ class UVSim:
         pass
 
     def run(self): #Runs program until Halt
-        with open("input.txt","w") as f:
-            pass
-        with open("output.txt","w") as f:
-            pass
-
+        self.program = self.gui.text_content
         self.counter = 0 #Reset Counter
         self.accumulator = 0 #Reset Accumulator
         run_program = True
         while run_program:
-            #Get Next Line
-            current = self.program[self.counter] #Start at current PC position
+            try:
+                #Get Next Line
+                current = self.program[self.counter] #Start at current PC position
 
-            # Validates the Input
-            #If that line is empty
-            if len(current) == 0:
-                while len(current) == 0:
-                    self.counter += 1
-                    current = self.program[self.counter]
-            elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
-                raise SyntaxError("Invalid Operation")
+                # Validates the Input
+                #If that line is empty
+                if len(current) == 0:
+                    while len(current) == 0:
+                        self.counter += 1
+                        current = self.program[self.counter]
+                elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
+                    raise SyntaxError("Invalid Operation")
 
-            #Exract opcode
-            if current[0] == "-":
-                opcode = int(str(current)[:3]) #Get first three digits
-            else:
-                opcode = int(str(current)[:2]) #Get first two digits
-            operand= int(current) % 100 #GeT Last Two Digits
-            print(f"OpCode: {opcode} Operand: {operand}")
+                #Exract opcode
+                if current[0] == "-":
+                    opcode = int(str(current)[:3]) #Get first three digits
+                else:
+                    opcode = int(str(current)[:2]) #Get first two digits
+                operand= int(current) % 100 #GeT Last Two Digits
+                print(f"OpCode: {opcode} Operand: {operand}")
 
-            #Run Operation
-            if not self.pause:
+                #Run Operation
                 if opcode == 10:
                     self._read(operand) #READ
-                    with open("input.txt","w") as f:
-                        pass
                     
                 elif opcode == 11:
                     self._write(operand) #WRITE
@@ -204,48 +205,14 @@ class UVSim:
                 else:
                     raise SyntaxError("Invalid Operation")
             # return False
-
+            except (SyntaxError, ValueError, IndexError) as e:
+                self.gui.console.config(state="normal")
+                self.gui.console.insert(END, f"{e}\n")
+                self.gui.console.config(state="disabled")
+                run_program = False
 def main():
-    v = UVSim()
-    v.program = ["1000","3300","2101","1101","4300"]
-    v.run()
-    
+    uv = UVSim()
+    uv.gui.create_main_window(uv.get_accumulator(), uv.get_counter(), uv.get_run(), uv.get_halt())
 
-
-    # if os.path.getsize("input.txt") > 0:            # If Input file changes or in other words, if input is entered
-    #     print("Greater than Zero")
-    # else:
-    #     print("Less than zero")
-
-
-
-    # with open("input.txt","w") as f:
-    #     f.write("GRRR")
-
-    # if os.path.getsize("input.txt") > 0:            # If Input file changes or in other words, if input is entered
-    #     print("Greater than Zero")
-    #     print(os.path.getsize("input.txt"))
-    # else:
-    #     print("Less than zero")
-
-    
-    # with open("input.txt","w") as f:
-    #     f.write("1")
-
-    # if os.path.getsize("input.txt") > 0:            # If Input file changes or in other words, if input is entered
-    #     print("Greater than Zero")
-    #     print(os.path.getsize("input.txt"))
-    # else:
-    #     print("Less than zero")
-
-    # with open("input.txt","w") as f:
-    #     pass
-
-    # if os.path.getsize("input.txt") > 0:            # If Input file changes or in other words, if input is entered
-    #     print("Greater than Zero")
-    #     print(os.path.getsize("input.txt"))
-    # else:
-    #     print("Less than zero")
-    
 if __name__ == "__main__":
     main()
