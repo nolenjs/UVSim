@@ -8,6 +8,10 @@ class GUI:              # Eder Sandoval
         self.simulator = UVSim()
         self.console = None # This gets updated later in the code
 
+    def stop(self):
+        self.simulator._halt()
+        # Our halt method actually has no functionality, so we might have to change this
+
     def load(self):
         #Same as stop
         pass
@@ -91,7 +95,7 @@ class GUI:              # Eder Sandoval
 
         self.console.grid(row=5, column=0, columnspan=4)
         self.read_file()
-        self._update_labels(accumulator, counter)
+        # self._update_labels(accumulator, counter)
 
     def _update_labels(self, a, c):
         a.config(text=f"Accumulator: \n{self.simulator.get_accumulator()}")
@@ -112,8 +116,9 @@ class GUI:              # Eder Sandoval
                     # Wait for user input
                     input_data = askstring("Input", new_content[:-1])
                     self.console.insert(END, f" {input_data}")
-
-                    # Process input as needed
+                    with open("input.txt","w") as file_out:
+                        file_out.write(input_data)
+                    self.console.config(state="disabled")
 
 
                 else:   # HANDLES OUTPUT
@@ -131,20 +136,18 @@ class GUI:              # Eder Sandoval
         self.root.geometry("850x550")   # dimensions of starting gui
         uvsim_label = Label(self.root, text="UVSim",bg="white", fg="black") # Place UVSim label outside frames in corner
         uvsim_label.grid(row=0, column=0, sticky="ew")
-        empty_label = Label(self.root, text="                ")
+        empty_label = Label(self.root, text="                ",bg="white")
 
 
         self._text_editor() # This takes up column 1 and 2
         empty_label.grid(row=0, column=3)   # This takes up column 3
         self._create_program_display() # This takes up column 4 and 5
-
         self.root.mainloop()
     
 def main():
     gui = GUI()
-    #gui.simulator.program = ["1000", "1100", "1001","1101","2000","3001","2102", "1102" ,"4300"]   # Valid Input
+    gui.simulator.program = ["1000","3300","2101","1101","4300"]
     gui.create_main_window()
-    #gui._create_program_display()
 
 
 if __name__ == "__main__":
