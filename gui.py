@@ -9,6 +9,7 @@ class GUI:              # Eder Sandoval
         self.console = Text(self.my_frame, height=20, width=35, background="lightgray",bd=1, relief="solid", highlightbackground="black",
                              highlightcolor="black", highlightthickness=1,fg="black", wrap="word",state="disabled") # state="disabled"
         self.text_content = [] 
+        self.labels = []
 
     def _text_editor(self):     # Left side of the screen
         # Create Main Frame
@@ -88,12 +89,14 @@ class GUI:              # Eder Sandoval
                              highlightcolor="black", highlightthickness=1,fg="black",yscrollcommand=text_scroll.set, wrap="word",state="disabled") # state="disabled"
 
         self.console.grid(row=5, column=0, columnspan=4)
+        self.labels.append(accumulator)
+        self.labels.append(counter)
         self._update_labels(accumulator, counter, accum_value, count_value)
 
     def _update_labels(self, a, c, accum_value, count_value):
         a.config(text=f"Accumulator: \n{accum_value}")
         c.config(text=f"Counter: \n{count_value}")
-        self.root.after(1000, self._update_labels, a, c, accum_value, count_value)
+        # self.root.after(1000, self._update_labels, a, c, accum_value, count_value)
 
     def create_main_window(self, a, c, cm1, cm2):
         self.root.title("UVSim")

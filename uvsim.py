@@ -37,11 +37,6 @@ class UVSim:
         else:
             raise IndexError("Location Index out of range")
 
-    def _check_location(self,location): #Checks if the location in memory is valid
-        if location >=0 or location < len(self.program):
-            pass
-        else:
-            raise IndexError("Location Index out of range")
 # Individual Methods for the Function of Each BasicML Operation
     
     #I/O Operations
@@ -124,6 +119,7 @@ class UVSim:
             self.accumulator = self.accumulator * operand
         if code == 33:
             if operand == 0:
+
                 raise ValueError("Divide by Zero")
             self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
         self.counter += 1 #PC Increments
@@ -153,10 +149,9 @@ class UVSim:
         self.accumulator = 0 #Reset Accumulator
         run_program = True
         while run_program:
-            try:
                 #Get Next Line
+            try:
                 current = self.program[self.counter] #Start at current PC position
-
                 # Validates the Input
                 #If that line is empty
                 if len(current) == 0:
@@ -204,6 +199,7 @@ class UVSim:
                     self.counter +=1
                 else:
                     raise SyntaxError("Invalid Operation")
+                self.gui._update_labels(self.gui.labels[0], self.gui.labels[1], self.get_accumulator(), self.get_counter())
             # return False
             except (SyntaxError, ValueError, IndexError) as e:
                 self.gui.console.config(state="normal")
@@ -213,6 +209,6 @@ class UVSim:
 def main():
     uv = UVSim()
     uv.gui.create_main_window(uv.get_accumulator(), uv.get_counter(), uv.get_run(), uv.get_halt())
-
+    
 if __name__ == "__main__":
     main()
