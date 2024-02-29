@@ -190,7 +190,7 @@ class UVSim:
                 elif opcode == 43:
                     #HALT
                     self._halt()
-                    run_program = False
+                    self.run_program = False
                     #return True
                 
                 elif opcode == 0: #No Op
@@ -204,7 +204,7 @@ class UVSim:
                 self.gui.console.config(state="normal")
                 self.gui.console.insert(END, f"{e}\n")
                 self.gui.console.config(state="disabled")
-                run_program = False
+                self.run_program = False
 def main():
     uv = UVSim()
     uv.gui.create_main_window(uv.get_accumulator(), uv.get_counter(), uv.get_run(), uv.get_halt())
