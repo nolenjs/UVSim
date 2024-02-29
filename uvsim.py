@@ -2,6 +2,7 @@ class UVSim:
     def __init__(self, counter = 0, accumulator = 0):
         self.counter = counter
         self.accumulator = accumulator
+        self.pause = False
 
         with open("program.txt", "r") as f:
             self.program = f.readlines()
@@ -22,13 +23,6 @@ class UVSim:
             return location
         else:
             raise IndexError("Location Index out of range")
-
-    def _check_location(self,location): #Checks if the location in memory is valid
-        if location >=0 or location < len(self.program):
-            pass
-        else:
-            raise IndexError("Location Index out of range")
-        pass   
 # Individual Methods for the Function of Each BasicML Operation
     
     #I/O Operations
@@ -87,67 +81,34 @@ class UVSim:
         self.counter += 1
 
     #Arithmetic Operations
-    def _add(self, location): #30
+    def _arithmetic(self, code, location): #30
         '''Add the value from a specific Memory Location to the Accumulator'''
         print(f"Add from {location} to Accumulator") #Shout for Testing
         self._check_location(location)
         operand = self.program[location] #Get Operand from specific Memory Location
         operand = int(operand)
-        self.accumulator = self.accumulator + operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
+        if code == 30 or code == 31:
+            if code == 31:
+                operand *= -1 #Subtraction = Negative Addition
+            self.accumulator = self.accumulator + operand #Add the Operand Value from the Accumulator (Accumulator+Opperand) 
+        if code == 32:
+            self.accumulator = self.accumulator * operand
+        if code == 33:
+            if operand == 0:
+                raise ValueError("Divide by Zero")
+            self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
         self.counter += 1 #PC Increments
-
-    def _subtract(self, location): #31
-        '''Subtract the value from a specific Memory Location from the Accumulator'''
-        print(f"Subtract from {location} from Accumulator") #Shout for Testing
-        self._check_location(location)
-        operand = self.program[location] #Get Operand from specific Memory Location
-        operand = int(operand)
-        self.accumulator = self.accumulator - operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand) 
-        self.counter += 1 #PC Increments
-        
-
-    def _multiply(self, location): #32
-        '''Multiply the Accumulator value by a value stored in a specific Memory Location'''
-        print(f"Multipy from {location} by Accumulator") #Shout for Testing
-        self._check_location(location)
-        operand = self.program[location] #Get Operand from specific Memory Location
-        operand = int(operand)
-        self.accumulator = self.accumulator * operand #Subtract the Operand Value from the Accumulator (Accumulator-Opperand)
-        self.counter += 1 #PC Increments
-        
-
-    def _divide(self, location): #33
-        '''Divide the Accumulator value by a value stored in a specific Memory Location'''
-        print(f"Divide from {location} by Accumulator") #Shout for Testing
-        self._check_location(location)
-        operand = self.program[location] #Get Operand from specific Memory Location
-        operand = int(operand)
-        if operand == 0:
-            raise ValueError("Divide by Zero")
-        self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
-        # self.counter += 1 #PC Increments
-        self.counter += 1
 
     #Control Operations
-    def _branch(self, location): #40
+    def _branch(self, code, location): #40
         '''Branches Unconditionally to a specific Memory Location'''
         print(f"Branch to {location}") #Shout for Testing
         self._check_location(location)
-        self.counter = location
-
-    def _branch_neg(self,location): #41
-        '''Branches to a specific Memory Location is the Accumulator is Negative'''
-        print(f"Branch to {location} if Neg") #Shout for Testing
-        self._check_location(location)
-        if self.accumulator < 0:
+        if code == 40:
             self.counter = location
-            
-
-    def _branch_zero(self,location): #42
-        '''Branches to a specific Memory Location is the Accumulator is Zero'''
-        print(f"Branch to {location} if Zero") #Shout for Testing
-        self._check_location(location)
-        if self.accumulator == 0: #Checks if Zero
+        elif self.accumulator < 0 and code == 41:
+            self.counter = location
+        elif self.accumulator == 0 and code == 42: #Checks if Zero
             self.counter = location #Moves Counter
             
 
@@ -156,8 +117,6 @@ class UVSim:
         print(f"Halt the Program") #Shout for Testing
         #End program Handled By run Method
         pass
-
-
 
     def run(self): #Runs program until Halt
         self.counter = 0 #Reset Counter
@@ -185,48 +144,33 @@ class UVSim:
             print(f"OpCode: {opcode} Operand: {operand}")
 
             #Run Operation
+            if not self.pause:
+                if opcode == 10:
+                    self._read(operand) #READ
+                elif opcode == 11:
+                    self._write(operand) #WRITE
 
-            if opcode == 10:
-                self._read(operand) #READ
-            elif opcode == 11:
-                self._write(operand) #WRITE
+                elif opcode == 20:
+                    self._load(operand) #LOAD
+                elif opcode == 21:
+                    self._store(operand) #STORE
 
-            elif opcode == 20:
-                self._load(operand) #LOAD
-            elif opcode == 21:
-                self._store(operand) #STORE
+                elif opcode >= 30 or opcode <= 33:
+                    self._arithmetic(opcode, operand) #ADD
 
-            elif opcode == 30:
-                self._add(operand) #ADD
-            elif opcode == 31:
-                self._subtract(operand) #SUB
+                elif opcode <= 40 or opcode >= 42:
+                    self._branch(opcode, operand) #BRANCH
+                    self.counter += 1
 
-            elif opcode == 32:
-                self._multiply(operand) #MUL
-            elif opcode == 33:
-                self._divide(operand) #DIV
-
-            elif opcode == 40:
-                self._branch(operand) #BRANCH
-                self.counter += 1
-            elif opcode == 41:
-                self._branch_neg(operand) #BRANCHNEG
-                self.counter += 1
-            elif opcode == 42:
-                self._branch_zero(operand) #BRANCHZERO
-                self.counter += 1
-
-            elif opcode == 43:
-                #HALT
-                self._halt()
-                run_program = False
-                return True
-            
-            elif opcode == 0: #No Op
-                print("NoOp")
-                self.counter +=1
-            else:
-                raise SyntaxError("Invalid Operation")
-
-            #run_program = False #Escape for Testing
-        return False
+                elif opcode == 43:
+                    #HALT
+                    self._halt()
+                    run_program = False
+                    return True
+                
+                elif opcode == 0: #No Op
+                    print("NoOp")
+                    self.counter +=1
+                else:
+                    raise SyntaxError("Invalid Operation")
+            return False
