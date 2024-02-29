@@ -8,7 +8,7 @@ class UVSim:
         self.counter = counter
         self.accumulator = accumulator
         self.gui = GUI()
-        #self.pause = False
+        self.run_program = True
 
         with open("program.txt", "r") as f:
             self.program = f.readlines()
@@ -146,8 +146,8 @@ class UVSim:
         self.program = self.gui.text_content
         self.counter = 0 #Reset Counter
         self.accumulator = 0 #Reset Accumulator
-        run_program = True
-        while run_program:
+        # run_program = True
+        while self.run_program:
                 #Get Next Line
             try:
                 current = self.program[self.counter] #Start at current PC position
