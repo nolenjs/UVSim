@@ -139,6 +139,7 @@ class UVSim:
     def _halt(self): #43
         '''Pauses the Program'''
         print(f"Halt the Program") #Shout for Testing
+        self.run_program = False
         #End program Handled By run Method
         pass
 
