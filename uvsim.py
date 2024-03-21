@@ -10,10 +10,11 @@ class UVSim:
         self.gui = GUI()
         self.run_program = True
 
-        with open("program.txt", "r") as f:
+        '''with open("program.txt", "r") as f:
             self.program = f.readlines()
             for p in range(0,len(self.program)):
                 self.program[p] = self.program[p].strip() #Remove any whitespace characters
+                '''
 
     #Other functions to come, but something to get started
         #kicks and giggles        
@@ -140,6 +141,9 @@ class UVSim:
         '''Pauses the Program'''
         print(f"Halt the Program") #Shout for Testing
         self.run_program = False
+        self.gui.console.config(state="normal")
+        self.gui.console.insert(END, "The program has stopped\n")
+        self.gui.console.config(state="disabled")
         #End program Handled By run Method
         pass
 
@@ -147,10 +151,13 @@ class UVSim:
         self.program = self.gui.text_content
         self.counter = 0 #Reset Counter
         self.accumulator = 0 #Reset Accumulator
-        # run_program = True
+        self.run_program = True
+
         while self.run_program:
                 #Get Next Line
             try:
+                if(len(self.program)==0):
+                    raise IndexError("Please Load a Program Before Running")
                 current = self.program[self.counter] #Start at current PC position
                 # Validates the Input
                 #If that line is empty

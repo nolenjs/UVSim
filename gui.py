@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter.simpledialog import askstring
+from tkinter import filedialog
 
 class GUI:              # Eder Sandoval
     def __init__(self):
@@ -36,6 +37,10 @@ class GUI:              # Eder Sandoval
         empty = Label(my_frame, text="\n",bg="white")
         empty.grid(row=2,column=1)
 
+        #Load From File Button
+        load_file=Button(my_frame, text="Load From File", width=20, height=2, bg="white", command=lambda: self.load_from_file(text))
+        load_file.grid(row=3,column=0)
+
         # Load Button
         load = Button(my_frame, text="Load", width=12, height = 2, bg="white", command=lambda: self.receive_text(text))  # command=command1
         load.grid(row=3, column=1)
@@ -43,6 +48,24 @@ class GUI:              # Eder Sandoval
     def receive_text(self, content):
         program_string =  content.get("1.0","end-1c")
         self.text_content = program_string.split('\n')
+        #Program Loaded Feedback
+        self.console.config(state="normal")
+        self.console.insert(END, "Program Loaded into Memory\n")
+        self.console.config(state="disabled")
+
+    def load_from_file(self, text):
+        file_path = filedialog.askopenfilename(title="Select a File", filetypes=[("Text files", "*.txt")])
+        if file_path: 
+            self.process_file(file_path, text)
+
+    def process_file(self, file_path, text):
+        try:
+            with open(file_path, 'r') as file:
+                file_contents = file.read()
+                text.delete("1.0","end-1c")
+                text.insert("end-1c",file_contents)
+        except Exception as e:
+            print(str(e))
             
 
     def _create_program_display(self, accum_value, count_value, cm1, cm2):  # Right side of the screen    # need command 1 and command 2 parameters for run and stop button
@@ -102,7 +125,7 @@ class GUI:              # Eder Sandoval
         self.root.title("UVSim")
         self.root.configure(bg="white")     # changes background color to white
         self.root.configure(bd=3, relief="solid", highlightbackground="black", highlightcolor="black", highlightthickness=1)
-        self.root.geometry("850x550")   # dimensions of starting gui
+        self.root.geometry("920x650")   # dimensions of starting gui
         uvsim_label = Label(self.root, text="UVSim",bg="white", fg="black") # Place UVSim label outside frames in corner
         uvsim_label.grid(row=0, column=0, sticky="ew")
         empty_label = Label(self.root, text="                ",bg="white")
