@@ -135,6 +135,8 @@ class UVSim:
             self.counter = location
         elif self.accumulator == 0 and code == 42: #Checks if Zero
             self.counter = location #Moves Counter
+        else:
+            self.counter += 1 #If the condition is not met move to next like normal
             
 
     def _halt(self): #43
@@ -193,7 +195,6 @@ class UVSim:
 
                 elif opcode >= 40 and opcode <= 42:
                     self._branch(opcode, operand) #BRANCH
-                    self.counter += 1
 
                 elif opcode == 43:
                     #HALT
