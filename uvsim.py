@@ -2,11 +2,16 @@ import os
 from tkinter import *
 from tkinter.simpledialog import askstring
 from gui import GUI
-
+'''
+UVSim class (Model) contains the logic and manages the application's data. 
+It processes data, makes computations, and updates its state accordingly.
+'''
 class UVSim:
     def __init__(self, counter = 0, accumulator = 0):
         self.counter = counter
         self.accumulator = accumulator
+        self.program = []
+        self.run_program = True
 <<<<<<< HEAD
         self.gui = GUI()
         #self.pause = False
@@ -14,10 +19,6 @@ class UVSim:
         self.pause = False
 >>>>>>> main
 
-        with open("program.txt", "r") as f:
-            self.program = f.readlines()
-            for p in range(0,len(self.program)):
-                self.program[p] = self.program[p].strip() #Remove any whitespace characters
 
     #Other functions to come, but something to get started
         #kicks and giggles        
@@ -31,7 +32,6 @@ class UVSim:
     def get_halt(self):
         return self._halt
 
-    
     def get_counter(self):
         return self.counter
 
@@ -49,7 +49,7 @@ class UVSim:
     #I/O Operations
     def _read(self, location): #10
         '''Reads a Word from the Keyboard and stores it in a Memory Location'''
-        print(f"Read From Keyboard to: {location}") #Shout for Testing
+        # print(f"Read From Keyboard to: {location}") #Shout for Testing
         self._check_location(location)
         word = askstring("Input", "Enter valid word:") 
    
@@ -64,9 +64,9 @@ class UVSim:
             raise ValueError("Invalid Input")  
     
         self.program[location] = str(word) #Store word at location in file
-        self.gui.console.config(state="normal")
-        self.gui.console.insert(END, f"Enter valid word: {word}\n")
-        self.gui.console.config(state="disabled")
+        # self.gui.console.config(state="normal")
+        # self.gui.console.insert(END, f"Enter valid word: {word}\n")
+        # self.gui.console.config(state="disabled")
         self.counter += 1
         return word
 
@@ -74,13 +74,13 @@ class UVSim:
     
     def _write(self, location): #11
         '''Writes a Word from a specific Memory Location to the screen.'''
-        print(f"Print From {location} to Screen") #Shout for Testing
+        # print(f"Print From {location} to Screen") #Shout for Testing
         self._check_location(location)
         word = self.program[location] #Get word from location in file
-        # print(word)
-        self.gui.console.config(state="normal")
-        self.gui.console.insert(END, f"{word}\n")
-        self.gui.console.config(state="disabled")
+        print(word)
+        # self.gui.console.config(state="normal")
+        # self.gui.console.insert(END, f"{word}\n")
+        # self.gui.console.config(state="disabled")
         self.counter +=1
         return word
 
@@ -149,118 +149,10 @@ class UVSim:
             self.counter = location
         elif self.accumulator == 0 and code == 42: #Checks if Zero
             self.counter = location #Moves Counter
-            
 
-    def _halt(self): #43
+    def _halt(self):
         '''Pauses the Program'''
         print(f"Halt the Program") #Shout for Testing
+        self.run_program = False
         #End program Handled By run Method
-        pass
 
-    def run(self): #Runs program until Halt
-        self.program = self.gui.text_content
-        self.counter = 0 #Reset Counter
-        self.accumulator = 0 #Reset Accumulator
-        run_program = True
-        while run_program:
-                #Get Next Line
-            try:
-                current = self.program[self.counter] #Start at current PC position
-                # Validates the Input
-                #If that line is empty
-                if len(current) == 0:
-                    while len(current) == 0:
-                        self.counter += 1
-                        current = self.program[self.counter]
-                elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
-                    raise SyntaxError("Invalid Operation")
-
-                #Exract opcode
-                if current[0] == "-":
-                    opcode = int(str(current)[:3]) #Get first three digits
-                else:
-                    opcode = int(str(current)[:2]) #Get first two digits
-                operand= int(current) % 100 #GeT Last Two Digits
-                print(f"OpCode: {opcode} Operand: {operand}")
-
-                #Run Operation
-                if opcode == 10:
-                    self._read(operand) #READ
-                    
-                elif opcode == 11:
-                    self._write(operand) #WRITE
-
-                elif opcode == 20:
-                    self._load(operand) #LOAD
-                elif opcode == 21:
-                    self._store(operand) #STORE
-
-                elif opcode >= 30 and opcode <= 33:
-                    self._arithmetic(opcode, operand) #ADD
-
-                elif opcode <= 40 and opcode >= 42:
-                    self._branch(opcode, operand) #BRANCH
-                    self.counter += 1
-
-<<<<<<< HEAD
-=======
-            #Exract opcode
-            if current[0] == "-":
-                opcode = int(str(current)[:3]) #Get first three digits
-            else:
-                opcode = int(str(current)[:2]) #Get first two digits
-            operand= int(current) % 100 #GeT Last Two Digits
-            print(f"OpCode: {opcode} Operand: {operand}")
-
-            #Run Operation
-            if not self.pause:
-                if opcode == 10:
-                    self._read(operand) #READ
-                elif opcode == 11:
-                    self._write(operand) #WRITE
-
-                elif opcode == 20:
-                    self._load(operand) #LOAD
-                elif opcode == 21:
-                    self._store(operand) #STORE
-
-                elif opcode >= 30 or opcode <= 33:
-                    self._arithmetic(opcode, operand) #ADD
-
-                elif opcode <= 40 or opcode >= 42:
-                    self._branch(opcode, operand) #BRANCH
-                    self.counter += 1
-
->>>>>>> main
-                elif opcode == 43:
-                    #HALT
-                    self._halt()
-                    run_program = False
-<<<<<<< HEAD
-                    #return True
-=======
-                    return True
->>>>>>> main
-                
-                elif opcode == 0: #No Op
-                    print("NoOp")
-                    self.counter +=1
-                else:
-                    raise SyntaxError("Invalid Operation")
-<<<<<<< HEAD
-                self.gui._update_labels(self.gui.labels[0], self.gui.labels[1], self.get_accumulator(), self.get_counter())
-            # return False
-            except (SyntaxError, ValueError, IndexError) as e:
-                self.gui.console.config(state="normal")
-                self.gui.console.insert(END, f"{e}\n")
-                self.gui.console.config(state="disabled")
-                run_program = False
-def main():
-    uv = UVSim()
-    uv.gui.create_main_window(uv.get_accumulator(), uv.get_counter(), uv.get_run(), uv.get_halt())
-    
-if __name__ == "__main__":
-    main()
-=======
-            return False
->>>>>>> main
