@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.simpledialog import askstring
-from tkinter import filedialog as fd
+from tkinter import filedialog
 '''
 The GUI class (View) is responsible for presenting the data/output from the Model 
 class to the user. It displays the graphical user interface to the user. 
@@ -44,35 +44,54 @@ class GUI:              # Eder Sandoval
         empty = Label(my_frame, text="\n",bg="white")
         empty.grid(row=2,column=1)
 
-        # Load Button
-        load = Button(my_frame, text="Load", width=12, height = 2, bg="white", command=lambda: self.load_from_file())  # command=command1
-        load.grid(row=3, column=1)
+        #Load From File Button
+        load_file=Button(my_frame, text="Load From File", width=20, height=2, bg="white", command=lambda: self.load_from_file(text))
+        load_file.grid(row=3,column=0)
 
-        # Save Button
-        save = Button(my_frame, text="Save", width=12, height = 2, bg="white", command=lambda: self.save_to_file())  # command=command1
-        save.grid(row=3, column=2)
+        #Save To File Button
+        save_file=Button(my_frame, text="Save to File", width=20, height=2, bg="white", command=lambda: self.save_to_file(text))
+        save_file.grid(row=3, column=2)
+
+    def load_from_file(self, text):
+        file_path = filedialog.askopenfilename(title="Select a File", filetypes=[("Text files", "*.txt")])
+        if file_path: 
+            self.process_file(file_path, text)
+
+    def process_file(self, file_path, text):
+        try:
+            with open(file_path, 'r') as file:
+                file_contents = file.read()
+                text.delete("1.0","end-1c")
+                text.insert("end-1c",file_contents)
+        except Exception as e:
+            print(str(e))
+
+    def save_to_file(self,text):
+        file_path=filedialog.asksaveasfilename(title="Save as File", filetypes=[("Text files", "*.txt")], defaultextension=[("Text files", "*.txt")])
+        if file_path:
+            try:
+                with open(file_path, 'w') as file:
+                    text_content = text.get("1.0","end-1c")
+                    file.write(text_content) #Write text box content to file
+                #Tell the User the Filed was saved
+                self.console.config(state="normal")
+                self.console.insert(END, f"File saved: {file_path}\n")
+                self.console.config(state="disabled")
+            except Exception as e:
+                self.console.config(state="normal")
+                self.console.insert(END, f"Error saving file: {str(e)}\n")
+                self.console.config(state="disabled")
+                "Error saving file:"
 
     def run(self, cm1):
-        program_string =  self.text.get("1.0","end-1c")
-        lyst = program_string.split('\n')
+        program_string =  content.get("1.0","end-1c")
+        self.text_content = program_string.split('\n')
+        #Program Loaded Feedback
+        self.console.config(state="normal")
+        self.console.insert(END, "Program Loaded into Memory\n")
+        self.console.config(state="disabled")
+      
         cm1
-        return lyst
-
-    def load_from_file(self):
-        # filetypes = (('text files', '*.txt'))
-        self.path = fd.askopenfile().name
-        try:
-            with open(self.path, "r") as f:
-                self.text.delete("1.0","end-1c")
-                self.text.insert('1.0', f.readlines())
-        except AttributeError:
-            print("Please select a file")
-
-    def save_to_file(self):
-        with open(self.path, 'w') as f:
-            content = self.text.get("1.0","end-1c")
-            f.write(content)
-
             
 
     def _create_program_display(self, accum_value, count_value, cm1, cm2):  # Right side of the screen    # need command 1 and command 2 parameters for run and stop button
@@ -136,7 +155,7 @@ class GUI:              # Eder Sandoval
         self.root.title("UVSim")
         self.root.configure(bg="white")     # changes background color to white
         self.root.configure(bd=3, relief="solid", highlightbackground="black", highlightcolor="black", highlightthickness=1)
-        self.root.geometry("850x550")   # dimensions of starting gui
+        self.root.geometry("920x650")   # dimensions of starting gui
         uvsim_label = Label(self.root, text="UVSim",bg="white", fg="black") # Place UVSim label outside frames in corner
         uvsim_label.grid(row=0, column=0, sticky="ew")
         empty_label = Label(self.root, text="                ",bg="white")

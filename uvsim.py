@@ -13,7 +13,6 @@ class UVSim:
         self.gui = GUI()
         self.run_program = True
 
-
     #Other functions to come, but something to get started
         #kicks and giggles        
                 
@@ -131,11 +130,16 @@ class UVSim:
             self.counter = location
         elif self.accumulator == 0 and code == 42: #Checks if Zero
             self.counter = location #Moves Counter
+        else:
+            self.counter += 1 #If the condition is not met move to next like normal
 
     def _halt(self):
         '''Pauses the Program'''
         print(f"Halt the Program") #Shout for Testing
         self.run_program = False
+        self.gui.console.config(state="normal")
+        self.gui.console.insert(END, "The program has stopped\n")
+        self.gui.console.config(state="disabled")
         #End program Handled By run Method
         pass
 
@@ -143,10 +147,13 @@ class UVSim:
         self.program = self.gui.text_content
         self.counter = 0 #Reset Counter
         self.accumulator = 0 #Reset Accumulator
-        # run_program = True
+        self.run_program = True
+
         while self.run_program:
                 #Get Next Line
             try:
+                if(len(self.program)==0):
+                    raise IndexError("Please Load a Program Before Running")
                 current = self.program[self.counter] #Start at current PC position
                 # Validates the Input
                 #If that line is empty
@@ -182,7 +189,6 @@ class UVSim:
 
                 elif opcode >= 40 and opcode <= 42:
                     self._branch(opcode, operand) #BRANCH
-                    self.counter += 1
 
                 elif opcode == 43:
                     #HALT
