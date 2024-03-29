@@ -7,10 +7,8 @@ class UVSim:
     def __init__(self, counter = 0, accumulator = 0):
         self.counter = counter
         self.accumulator = accumulator
-        self.program = []
+        self.gui = GUI()
         self.run_program = True
-        self.pause = False
-
 
     #Other functions to come, but something to get started
         #kicks and giggles        
@@ -127,10 +125,87 @@ class UVSim:
             self.counter = location
         elif self.accumulator == 0 and code == 42: #Checks if Zero
             self.counter = location #Moves Counter
+        else:
+            self.counter += 1 #If the condition is not met move to next like normal
 
     def _halt(self):
         '''Pauses the Program'''
         print(f"Halt the Program") #Shout for Testing
         self.run_program = False
+        self.gui.console.config(state="normal")
+        self.gui.console.insert(END, "The program has stopped\n")
+        self.gui.console.config(state="disabled")
         #End program Handled By run Method
+        pass
 
+    def run(self): #Runs program until Halt
+        self.program = self.gui.text_content
+        self.counter = 0 #Reset Counter
+        self.accumulator = 0 #Reset Accumulator
+        self.run_program = True
+
+        while self.run_program:
+                #Get Next Line
+            try:
+                if(len(self.program)==0):
+                    raise IndexError("Please Load a Program Before Running")
+                current = self.program[self.counter] #Start at current PC position
+                # Validates the Input
+                #If that line is empty
+                if len(current) == 0:
+                    while len(current) == 0:
+                        self.counter += 1
+                        current = self.program[self.counter]
+                elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
+                    raise SyntaxError("Invalid Operation")
+
+                #Exract opcode
+                if current[0] == "-":
+                    opcode = int(str(current)[:3]) #Get first three digits
+                else:
+                    opcode = int(str(current)[:2]) #Get first two digits
+                operand= int(current) % 100 #GeT Last Two Digits
+                print(f"OpCode: {opcode} Operand: {operand}")
+
+                #Run Operation
+                if opcode == 10:
+                    self._read(operand) #READ
+                    
+                elif opcode == 11:
+                    self._write(operand) #WRITE
+
+                elif opcode == 20:
+                    self._load(operand) #LOAD
+                elif opcode == 21:
+                    self._store(operand) #STORE
+
+                elif opcode >= 30 and opcode <= 33:
+                    self._arithmetic(opcode, operand) #ADD
+
+                elif opcode >= 40 and opcode <= 42:
+                    self._branch(opcode, operand) #BRANCH
+
+                elif opcode == 43:
+                    #HALT
+                    self._halt()
+                    self.run_program = False
+                    #return True
+                
+                elif opcode == 0: #No Op
+                    print("NoOp")
+                    self.counter +=1
+                else:
+                    raise SyntaxError("Invalid Operation")
+                self.gui._update_labels(self.gui.labels[0], self.gui.labels[1], self.get_accumulator(), self.get_counter())
+            # return False
+            except (SyntaxError, ValueError, IndexError) as e:
+                self.gui.console.config(state="normal")
+                self.gui.console.insert(END, f"{e}\n")
+                self.gui.console.config(state="disabled")
+                self.run_program = False
+def main():
+    uv = UVSim()
+    uv.gui.create_main_window(uv.get_accumulator(), uv.get_counter(), uv.get_run(), uv.get_halt())
+    
+if __name__ == "__main__":
+    main()
