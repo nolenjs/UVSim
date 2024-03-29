@@ -1,6 +1,10 @@
 from tkinter import *
 from tkinter.simpledialog import askstring
-
+from tkinter import filedialog as fd
+'''
+The GUI class (View) is responsible for presenting the data/output from the Model 
+class to the user. It displays the graphical user interface to the user. 
+'''
 class GUI:              # Eder Sandoval
     def __init__(self):
         self.root = Tk()
@@ -8,7 +12,8 @@ class GUI:              # Eder Sandoval
         self.my_frame = Frame(self.root, background = "white")
         self.console = Text(self.my_frame, height=20, width=35, background="lightgray",bd=1, relief="solid", highlightbackground="black",
                              highlightcolor="black", highlightthickness=1,fg="black", wrap="word",state="disabled") # state="disabled"
-        self.text_content = [] 
+        self.text = []
+        self.path = "filename"
         self.labels = []
 
     def _text_editor(self):     # Left side of the screen
@@ -29,6 +34,9 @@ class GUI:              # Eder Sandoval
         text = Text(my_frame, width=40, height = 20, font=("Arial",16), selectbackground="gray", selectforeground="black", undo=True, yscrollcommand=text_scroll.set, bg="lightgray", fg="black",insertbackground="black")
         text.grid(row=1, column=0, columnspan=3)
 
+        # Use self.text as a pointer to text
+        self.text = text
+
         # Configure Scrollbar
         text_scroll.configure(command=text.yview)
 
@@ -37,12 +45,34 @@ class GUI:              # Eder Sandoval
         empty.grid(row=2,column=1)
 
         # Load Button
-        load = Button(my_frame, text="Load", width=12, height = 2, bg="white", command=lambda: self.receive_text(text))  # command=command1
+        load = Button(my_frame, text="Load", width=12, height = 2, bg="white", command=lambda: self.load_from_file())  # command=command1
         load.grid(row=3, column=1)
 
-    def receive_text(self, content):
-        program_string =  content.get("1.0","end-1c")
-        self.text_content = program_string.split('\n')
+        # Save Button
+        save = Button(my_frame, text="Save", width=12, height = 2, bg="white", command=lambda: self.save_to_file())  # command=command1
+        save.grid(row=3, column=2)
+
+    def run(self, cm1):
+        program_string =  self.text.get("1.0","end-1c")
+        lyst = program_string.split('\n')
+        cm1
+        return lyst
+
+    def load_from_file(self):
+        # filetypes = (('text files', '*.txt'))
+        self.path = fd.askopenfile().name
+        try:
+            with open(self.path, "r") as f:
+                self.text.delete("1.0","end-1c")
+                self.text.insert('1.0', f.readlines())
+        except AttributeError:
+            print("Please select a file")
+
+    def save_to_file(self):
+        with open(self.path, 'w') as f:
+            content = self.text.get("1.0","end-1c")
+            f.write(content)
+
             
 
     def _create_program_display(self, accum_value, count_value, cm1, cm2):  # Right side of the screen    # need command 1 and command 2 parameters for run and stop button
@@ -71,7 +101,7 @@ class GUI:              # Eder Sandoval
 
 
         # Create Run and Stop Buttons Row 3
-        run_button = Button(self.my_frame, text="Run", width=8, height = 2, bg="white", command=cm1)  # command=command1
+        run_button = Button(self.my_frame, text="Run", width=8, height = 2, bg="white", command=self.run(cm1))  # command=command1
         stop_button = Button(self.my_frame, text="Stop", width=8, height=2, bg="white", command=cm2)  # command=command2
 
         run_button.grid(row=3, column=0)
@@ -96,7 +126,11 @@ class GUI:              # Eder Sandoval
     def _update_labels(self, a, c, accum_value, count_value):
         a.config(text=f"Accumulator: \n{accum_value}")
         c.config(text=f"Counter: \n{count_value}")
-        # self.root.after(1000, self._update_labels, a, c, accum_value, count_value)
+
+    def append_console(self, text):
+        self.console.config(state="normal")
+        self.console.insert(END, f"{text}\n")
+        self.console.config(state="disabled")
 
     def create_main_window(self, a, c, cm1, cm2):
         self.root.title("UVSim")
