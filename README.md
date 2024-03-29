@@ -11,7 +11,9 @@ To begin working on the repository (aka "repo"):
 6) Have fun!
 
 To run UVSim:
-1) Open a terminal and go to the file path where you saved uvsim.py
-2) Create/provide a BasicML program in a txt file then name it "program.txt"
-3) Run in the terminal "python uvsim.py" or "python3 uvsim.py"
-4) Let it work its magic!
+1) Open a terminal or IDE and go to the file path where you saved uvsim.py and gui.py
+2) Run in the program in the IDE or if using a terminal run “python uvsim.py” or “python3 uvsim.py”
+3) Create/provide a BasicML program in the text editor under the BasicML Program label on the left side of the GUI with each instruction on its own line
+4) Once a BasicML program has been provided, click the Load button beneath the text editor to load your program in the program’s memory
+5) Click the Run button to run your Basic ML program. You can use the Stop button to terminate your program.
+6) Let it work its magic!
