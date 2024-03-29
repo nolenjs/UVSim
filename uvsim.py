@@ -2,19 +2,16 @@ import os
 from tkinter import *
 from tkinter.simpledialog import askstring
 from gui import GUI
-
+'''
+UVSim class (Model) contains the logic and manages the application's data. 
+It processes data, makes computations, and updates its state accordingly.
+'''
 class UVSim:
     def __init__(self, counter = 0, accumulator = 0):
         self.counter = counter
         self.accumulator = accumulator
         self.gui = GUI()
         self.run_program = True
-
-        '''with open("program.txt", "r") as f:
-            self.program = f.readlines()
-            for p in range(0,len(self.program)):
-                self.program[p] = self.program[p].strip() #Remove any whitespace characters
-                '''
 
     #Other functions to come, but something to get started
         #kicks and giggles        
@@ -28,7 +25,6 @@ class UVSim:
     def get_halt(self):
         return self._halt
 
-    
     def get_counter(self):
         return self.counter
 
@@ -42,7 +38,7 @@ class UVSim:
     #I/O Operations
     def _read(self, location): #10
         '''Reads a Word from the Keyboard and stores it in a Memory Location'''
-        print(f"Read From Keyboard to: {location}") #Shout for Testing
+        # print(f"Read From Keyboard to: {location}") #Shout for Testing
         self._check_location(location)
         word = askstring("Input", "Enter valid word:") 
    
@@ -57,9 +53,9 @@ class UVSim:
             raise ValueError("Invalid Input")  
     
         self.program[location] = str(word) #Store word at location in file
-        self.gui.console.config(state="normal")
-        self.gui.console.insert(END, f"Enter valid word: {word}\n")
-        self.gui.console.config(state="disabled")
+        # self.gui.console.config(state="normal")
+        # self.gui.console.insert(END, f"Enter valid word: {word}\n")
+        # self.gui.console.config(state="disabled")
         self.counter += 1
         return word
 
@@ -67,13 +63,13 @@ class UVSim:
     
     def _write(self, location): #11
         '''Writes a Word from a specific Memory Location to the screen.'''
-        print(f"Print From {location} to Screen") #Shout for Testing
+        # print(f"Print From {location} to Screen") #Shout for Testing
         self._check_location(location)
         word = self.program[location] #Get word from location in file
-        # print(word)
-        self.gui.console.config(state="normal")
-        self.gui.console.insert(END, f"{word}\n")
-        self.gui.console.config(state="disabled")
+        print(word)
+        # self.gui.console.config(state="normal")
+        # self.gui.console.insert(END, f"{word}\n")
+        # self.gui.console.config(state="disabled")
         self.counter +=1
         return word
 
@@ -119,7 +115,6 @@ class UVSim:
             self.accumulator = self.accumulator * operand
         if code == 33:
             if operand == 0:
-
                 raise ValueError("Divide by Zero")
             self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
         self.counter += 1 #PC Increments
@@ -137,9 +132,8 @@ class UVSim:
             self.counter = location #Moves Counter
         else:
             self.counter += 1 #If the condition is not met move to next like normal
-            
 
-    def _halt(self): #43
+    def _halt(self):
         '''Pauses the Program'''
         print(f"Halt the Program") #Shout for Testing
         self.run_program = False
