@@ -1,5 +1,6 @@
 from gui import GUI
 from uvsim import UVSim
+from tkinter.simpledialog import askstring
 
 
 '''
@@ -48,7 +49,8 @@ class Controller():
 
                 #Run Operation
                 if opcode == 10:
-                    word = self.model._read(operand) #READ
+                    inp = askstring("Input", "Enter valid word:") 
+                    word = self.model._read(inp, operand) #READ
                     self.view.append_console(word)
 
                     
