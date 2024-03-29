@@ -12,12 +12,7 @@ class UVSim:
         self.accumulator = accumulator
         self.program = []
         self.run_program = True
-<<<<<<< HEAD
-        self.gui = GUI()
-        #self.pause = False
-=======
         self.pause = False
->>>>>>> main
 
 
     #Other functions to come, but something to get started
@@ -40,10 +35,6 @@ class UVSim:
             return location
         else:
             raise IndexError("Location Index out of range")
-<<<<<<< HEAD
-
-=======
->>>>>>> main
 # Individual Methods for the Function of Each BasicML Operation
     
     #I/O Operations
@@ -126,18 +117,10 @@ class UVSim:
             self.accumulator = self.accumulator * operand
         if code == 33:
             if operand == 0:
-<<<<<<< HEAD
-
                 raise ValueError("Divide by Zero")
             self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
         self.counter += 1 #PC Increments
 
-=======
-                raise ValueError("Divide by Zero")
-            self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
-        self.counter += 1 #PC Increments
-
->>>>>>> main
     #Control Operations
     def _branch(self, code, location): #40
         '''Branches Unconditionally to a specific Memory Location'''
