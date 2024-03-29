@@ -1,6 +1,3 @@
-import os
-from tkinter import *
-from tkinter.simpledialog import askstring
 from gui import GUI
 '''
 UVSim class (Model) contains the logic and manages the application's data. 
@@ -21,9 +18,6 @@ class UVSim:
     def get_accumulator(self):
         return self.accumulator
     
-    def get_run(self):
-        return self.run
-    
     def get_halt(self):
         return self._halt
 
@@ -38,12 +32,14 @@ class UVSim:
 # Individual Methods for the Function of Each BasicML Operation
     
     #I/O Operations
-    def _read(self, location): #10
+    def _read(self, word, location): #10
         '''Reads a Word from the Keyboard and stores it in a Memory Location'''
         # print(f"Read From Keyboard to: {location}") #Shout for Testing
         self._check_location(location)
-        word = askstring("Input", "Enter valid word:") 
-   
+
+        if type(word) != str:
+            raise ValueError("Invalid Type")
+        
         if len(word) == 5 and word[0] == '-':
             if word[1:].isdigit():
                 pass
@@ -55,9 +51,6 @@ class UVSim:
             raise ValueError("Invalid Input")  
     
         self.program[location] = str(word) #Store word at location in file
-        # self.gui.console.config(state="normal")
-        # self.gui.console.insert(END, f"Enter valid word: {word}\n")
-        # self.gui.console.config(state="disabled")
         self.counter += 1
         return word
 
@@ -113,12 +106,14 @@ class UVSim:
             if code == 31:
                 operand *= -1 #Subtraction = Negative Addition
             self.accumulator = self.accumulator + operand #Add the Operand Value from the Accumulator (Accumulator+Opperand) 
-        if code == 32:
+        elif code == 32:
             self.accumulator = self.accumulator * operand
-        if code == 33:
+        elif code == 33:
             if operand == 0:
                 raise ValueError("Divide by Zero")
             self.accumulator = int((self.accumulator / operand) + 0.5) #Round the result & turn into an int
+        else:
+            raise ValueError("Invalid Opcode")
         self.counter += 1 #PC Increments
 
     #Control Operations

@@ -1,5 +1,4 @@
 from tkinter import *
-from tkinter.simpledialog import askstring
 '''
 The GUI class (View) is responsible for presenting the data/output from the Model 
 class to the user. It displays the graphical user interface to the user. 
