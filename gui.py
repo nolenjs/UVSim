@@ -83,15 +83,19 @@ class GUI:              # Eder Sandoval
                 self.console.config(state="disabled")
                 "Error saving file:"
 
-    def run(self, cm1):
-        program_string =  content.get("1.0","end-1c")
-        self.text_content = program_string.split('\n')
-        #Program Loaded Feedback
-        self.console.config(state="normal")
-        self.console.insert(END, "Program Loaded into Memory\n")
-        self.console.config(state="disabled")
+    # def run(self, cm1):
+    #     program_string =  content.get("1.0","end-1c")
+    #     self.text_content = program_string.split('\n')
+    #     #Program Loaded Feedback
+    #     self.console.config(state="normal")
+    #     self.console.insert(END, "Program Loaded into Memory\n")
+    #     self.console.config(state="disabled")
       
-        cm1
+    #     cm1
+    def receive_text(self, content):
+        program_string =  content.get("1.0","end-1c")
+        lyst = program_string.split('\n')
+        return lyst
             
 
     def _create_program_display(self, accum_value, count_value, cm1, cm2):  # Right side of the screen    # need command 1 and command 2 parameters for run and stop button
@@ -120,7 +124,7 @@ class GUI:              # Eder Sandoval
 
 
         # Create Run and Stop Buttons Row 3
-        run_button = Button(self.my_frame, text="Run", width=8, height = 2, bg="white", command=self.run(cm1))  # command=command1
+        run_button = Button(self.my_frame, text="Run", width=8, height = 2, bg="white", command=cm1)  # command=command1
         stop_button = Button(self.my_frame, text="Stop", width=8, height=2, bg="white", command=cm2)  # command=command2
 
         run_button.grid(row=3, column=0)

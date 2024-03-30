@@ -37,11 +37,12 @@ class Controller():
                         self.model.counter += 1
                         current = self.model.program[self.model.counter]
                 elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
-                    raise SyntaxError("Invalid Operation")
+                    raise SyntaxError("Invalid Operation G")
 
                 #Exract opcode
                 if current[0] == "-":
                     opcode = int(str(current)[:3]) #Get first three digits
+                    
                 else:
                     opcode = int(str(current)[:2]) #Get first two digits
                 operand= int(current) % 100 #GeT Last Two Digits
@@ -72,13 +73,15 @@ class Controller():
 
                 elif opcode == 43:
                     #HALT
-                    self.model._halt()
+                    text = self.model._halt()
+                    self.view.append_console(text)
                     #return True
                 
                 elif opcode == 0: #No Op
                     print("NoOp")
                     self.model.counter +=1
                 else:
+                    print(opcode)
                     raise SyntaxError("Invalid Operation")
                 self.view._update_labels(self.view.labels[0], self.view.labels[1], self.model.get_accumulator(), self.model.get_counter())
 
