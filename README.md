@@ -14,6 +14,6 @@ To run UVSim:
 1) Open a terminal or IDE and go to the file path where you saved uvsim.py and gui.py
 2) Run in the program in the IDE or if using a terminal run “python uvsim.py” or “python3 uvsim.py”
 3) Create/provide a BasicML program in the text editor under the BasicML Program label on the left side of the GUI with each instruction on its own line
-4) Once a BasicML program has been provided, click the Load button beneath the text editor to load your program in the program’s memory
-5) Click the Run button to run your Basic ML program. You can use the Stop button to terminate your program.
+4) If you want to change the program, you can load that program into the GUI, modify it, and then save it.
+5) Click the Run button to run your Basic ML program shown inside the GUI. You can use the Stop button to terminate your program.
 6) Let it work its magic!
