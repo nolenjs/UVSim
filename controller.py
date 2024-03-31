@@ -85,7 +85,7 @@ class Controller():
                         #HALT
                         text = self.model._halt()
                         self.view.append_console(text)
-                        #return True
+                        return True
                     
                     elif opcode == 0: #No Op
                         print("NoOp")
