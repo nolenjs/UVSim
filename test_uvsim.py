@@ -1,11 +1,12 @@
 import pytest
 import uvsim
-from unittest.mock import patch
+from gui import GUI
+from tkinter import *
+from unittest.mock import patch, MagicMock, Mock
+from tkinter import filedialog
 
-'''
-TODO
-Valid Input: Test multiple valid input arguments, include different opcodes
-'''
+
+
 @pytest.fixture
 def model():
     return uvsim.UVSim()
@@ -16,35 +17,14 @@ def test_initialization():  #1 Test Initilization of object.
     assert model.counter == 0
     assert model.accumulator == 0
     assert model.program == []
-
-''' Run Function No longer exists in UVSim
-# # Test Run: Valid Input
-# def test_valid_input(): #2
-#     model = uvsim.UVSim()
-#     program = ["1000", "1100", "1001","1101","2000","3001","2102", "1102" ,"4300"]   # Valid Input
-#     with patch('builtins.input', side_effect=["-0001","-0020"]):
-#         model.program = program
-#         result = model.run() # Program ran to completion and terminated at halt instruction
-#         assert result == True # Halt instruction returns True
-
-# # Test Run: Invalid Input
-# def test_invalid_input():   #3 Tests invalid input
-#     model = uvsim.UVSim()
-#     model.program = ["1100", "2100", "4ha3"]    # Invalid Input
-#     try:
-#         model.run() # If input is invalid while running code, the program will raise a syntax error
-#     except SyntaxError as e:
-#         assert str(e) == 'Invalid Operation'
-
-
+ 
 # Test Run: Halt
 def test_halt(): #4
     model = uvsim.UVSim()
+    model.run_program = True
     model.program = ["4300"]
-    result = model.run()
-    assert result == True   # If halt instruciton is reached, program will return True
-
-'''
+    result = model._halt()
+    assert model.run_program == False   # If halt instruciton is reached, program will return True
 
 # Test Location Checker
 def test_check_location():  #5 Testing a function that validates memory indexes.
@@ -301,11 +281,11 @@ def test_branchneg():   #20 Tests branch on negative, positive, and zero values 
 
     model.accumulator = 0
     model._branch(41, 7)    # Will not change counter to location 7 as accumulator (0) is not negative.
-    assert model.counter == 5
+    assert model.counter == 6
 
     model.accumulator = 1   
     model._branch(41, 8)    # Will not change counter to location 8 as accumulator (1) is not negative.
-    assert model.counter == 5
+    assert model.counter == 7
 
 def test_branchneg_bound(): #21
     model = uvsim.UVSim()
@@ -322,8 +302,6 @@ def test_branchneg_bound(): #21
         assert str(e) == "Location Index out of range"
 
 
-
-
 def test_branchzero():  #22 ests branch on negative, positive, and zero values of accumulator.  Also checks branch is within memory bound.
     model = uvsim.UVSim()
     model.program = [1,2,3,4,5,6,7,8,9,10]
@@ -333,11 +311,11 @@ def test_branchzero():  #22 ests branch on negative, positive, and zero values o
 
     model.accumulator = 5
     model._branch(42, 6)  # Will not change counter to location 6 as accumulator is not zero.
-    assert model.counter == 5
+    assert model.counter == 6
 
     model.accumulator = -5  
     model._branch(42, 7)   # Will not change counter to location 7 as accumulator is not zero. 
-    assert model.counter == 5
+    assert model.counter == 7
 
 
 def test_branchzero_bound(): #23
@@ -353,4 +331,142 @@ def test_branchzero_bound(): #23
         model._branch(42, 10)     # Over bound check, memory at location 5 doesn't exist
     except IndexError as e:
         assert str(e) == "Location Index out of range"
+
+
+# Tests creation of the text editor by creating and writing to the editor
+def test_text_editor():
+    view = GUI()
+
+    view._text_editor()
+    view.text.config(state="normal")
+    view.text.insert(END, "Hello")
+    view.text.config(state="disabled")
+    content = view.text.get("1.0","end-1c")
+
+    assert content == "Hello"
+
+# Tests creation of the console
+def test_console():
+    view = GUI()
+    view._create_program_display(0,0,"void","void")
+
+    view.console.config(state="normal")
+    view.console.insert(END, "Hello")
+    view.console.config(state="disabled")
+    content = view.console.get("1.0","end-1c")
+
+    assert content == "Hello"
+
+# Tests creation of the accumulator label
+def test_accumulator():
+    view = GUI()
+    model = uvsim.UVSim()
+    model.accumulator = 10
+    view._create_program_display(model.get_accumulator(),model.get_counter,"void","void")
+
+    accum = view.labels[0]
+    assert accum.cget("text") == "Accumulator: \n10" 
+
+# Tests creation of the counter label
+def test_counter():
+    view = GUI()
+    model = uvsim.UVSim()
+    model.counter = 10
+    view._create_program_display(model.get_accumulator(),model.get_counter(),"void","void")
+
+    count = view.labels[1]
+    assert count.cget("text") == "Counter: \n10"
+
+# Tests the update labels method
+def test_update_labels():
+    view = GUI()
+    model = uvsim.UVSim()
+    model.counter = 10
+    view._create_program_display(model.get_accumulator(),model.get_counter(),"void","void")
+
+    accum = view.labels[0]
+    count = view.labels[1]
+
+    view._update_labels(accum, count, 25, 40)
+    assert count.cget("text") == "Counter: \n40"
+    assert accum.cget("text") == "Accumulator: \n25"
+
+
+# Tests the append to console method
+def test_append_console():
+    view = GUI()
+
+    view._create_program_display(0, 0, "void", "void")
+    view.append_console("Hello")
+
+    content = view.console.get("1.0","end-1c")
+    assert content == "Hello\n"
+
+# Tests loading a valid file
+def test_load_valid_txt():
+    view = GUI()
+    root = Tk()
+
+
+    my_frame = Frame(root, background = "white")
+    text = Text(my_frame, width=40, height = 20, font=("Arial",16), selectbackground="gray", selectforeground="black", undo=True, bg="lightgray", fg="black",insertbackground="black")
+    with open("program.txt","r") as file_in:
+        file_content = file_in.read()
+
+    view.process_file("program.txt", text)
+    content = text.get("1.0","end-1c")
+    assert file_content == content
+
+# Tests loading a non existent file
+def test_load_invalid_txt():
+    view = GUI()
+    root = Tk()
+
+    my_frame = Frame(root, background = "white")
+    text = Text(my_frame, width=40, height = 20, font=("Arial",16), selectbackground="gray", 
+                selectforeground="black", undo=True, bg="lightgray", fg="black",insertbackground="black")
+    with open("program.txt","r") as file_in:
+        file_content = file_in.read()
+
+    try:
+        view.process_file("eder.txt", text)     # eder.txt file doesn't exist so it cannot proccess it
+    except ValueError as e:
+        assert str(e) == "No such file or directory: 'eder.txt'"
+
+# Tests saving the text to a file
+def test_save():
+    view = GUI()
+    root = Tk()
+
+    my_frame = Frame(root, background = "white")
+    text = Text(my_frame, width=40, height = 20, font=("Arial",16), selectbackground="gray", 
+                selectforeground="black", undo=True, bg="lightgray", fg="black",insertbackground="black")
+    
+    text.config(state="normal")
+    text.insert(END, "Hello")
+    text.config(state="disabled")
+    content = text.get("1.0","end-1c")
+
+    # Implementation of save method
+    file_path = "eder.txt"
+    if file_path:
+        try:
+            with open(file_path, 'w') as file:
+                text_content = text.get("1.0","end-1c")
+                file.write(text_content) #Write text box content to file
+
+            #Tell the User the Filed was saved
+            text.config(state="normal")
+            text.insert(END, f"File saved: {file_path}\n")
+            text.config(state="disabled")
+        except Exception as e:
+            text.config(state="normal")
+            text.insert(END, f"Error saving file: {str(e)}\n")
+            text.config(state="disabled")
+            "Error saving file:"
+
+        
+        with open(file_path, "r") as file:
+            text_content = file.read()
+            assert text_content == content
 

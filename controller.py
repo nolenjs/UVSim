@@ -36,51 +36,64 @@ class Controller():
                     while len(current) == 0:
                         self.model.counter += 1
                         current = self.model.program[self.model.counter]
-                elif len(current) != 4 and (len(current) != 5 and current[0] == "-") or not current.isdigit():
-                    raise SyntaxError("Invalid Operation")
+                        
+                if len(current) == 5 and current[0] == '-':
+                    if current[1:].isdigit():
+                        pass
+
+                elif len(current) == 4:
+                    if current.isdigit():
+                        pass
+                else: 
+                    raise SyntaxError("Invalid Operation") 
 
                 #Exract opcode
                 if current[0] == "-":
-                    opcode = int(str(current)[:3]) #Get first three digits
+                    self.model.counter += 1
+                    # opcode = int(str(current)[:3]) #Get first three digits
+                    # IF VARIABLES AREN"T SUPPOSED TO RUN THEN JUST PUT A 
+                    
                 else:
                     opcode = int(str(current)[:2]) #Get first two digits
-                operand= int(current) % 100 #GeT Last Two Digits
-                print(f"OpCode: {opcode} Operand: {operand}")
+                    operand= int(current) % 100 #GeT Last Two Digits
+                    print(f"OpCode: {opcode} Operand: {operand}")
 
-                #Run Operation
-                if opcode == 10:
-                    inp = askstring("Input", "Enter valid word:") 
-                    word = self.model._read(inp, operand) #READ
-                    self.view.append_console(word)
+                    #Run Operation
+                    if opcode == 10:
+                        inp = askstring("Input", "Enter valid word:") 
+                        word = self.model._read(inp, operand) #READ
+                        self.view.append_console(word)
 
+                        
+                    elif opcode == 11:
+                        word = self.model._write(operand) #WRITE
+                        self.view.append_console(word)
+
+                    elif opcode == 20:
+                        self.model._load(operand) #LOAD
+                    elif opcode == 21:
+                        self.model._store(operand) #STORE
+
+                    elif opcode >= 30 and opcode <= 33:
+                        self.model._arithmetic(opcode, operand) #ADD
+
+                    elif opcode >= 40 and opcode <= 42:
+                        self.model._branch(opcode, operand) #BRANCH
+                        self.model.counter += 1
+
+                    elif opcode == 43:
+                        #HALT
+                        text = self.model._halt()
+                        self.view.append_console(text)
+                        return True
                     
-                elif opcode == 11:
-                    word = self.model._write(operand) #WRITE
-                    self.view.append_console(word)
-
-                elif opcode == 20:
-                    self.model._load(operand) #LOAD
-                elif opcode == 21:
-                    self.model._store(operand) #STORE
-
-                elif opcode >= 30 and opcode <= 33:
-                    self.model._arithmetic(opcode, operand) #ADD
-
-                elif opcode <= 40 and opcode >= 42:
-                    self.model._branch(opcode, operand) #BRANCH
-                    self.model.counter += 1
-
-                elif opcode == 43:
-                    #HALT
-                    self.model._halt()
-                    #return True
-                
-                elif opcode == 0: #No Op
-                    print("NoOp")
-                    self.model.counter +=1
-                else:
-                    raise SyntaxError("Invalid Operation")
-                self.view._update_labels(self.view.labels[0], self.view.labels[1], self.model.get_accumulator(), self.model.get_counter())
+                    elif opcode == 0: #No Op
+                        print("NoOp")
+                        self.model.counter +=1
+                    else:
+                        print(opcode, )
+                        raise SyntaxError("Invalid Operation")
+                    self.view._update_labels(self.view.labels[0], self.view.labels[1], self.model.get_accumulator(), self.model.get_counter())
 
             # return False
             except (SyntaxError, ValueError, IndexError) as e:
